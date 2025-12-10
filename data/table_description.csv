@@ -1,0 +1,7 @@
+table_name,description,calculatedmetrics
+"3_PRP.V_MID_DATACENTER_SUPPLY","Master supply view containing datacenter attributes such as provider, rentable space, raised floor space, power utilization, location info, ownership details, operational status, and region mappings.","TotalDeployed; AvailableDeployed; UnderConstructionPower; Land; LiveRaisedSpace; VacantRaisedSpace; LiveInventory; VacantInventory"
+"3_PRP.V_CURRENT_QUARTER_SUPPLY_DATA","Quarter-over-quarter power supply metrics including total deployed power, available power, under construction power, land power and their respective percentages.","TotalDeployedQoQ; UnderConstructionPowerQoQ; AvailableDeployedQoQ; LandpowerQoQ; TotalDeployedQoQPercentage; UnderConstructionPowerQoQPercentage; AvailableDeployedQoQPercentage; LandpowerQoQPercentage"
+"3_PRP.V_CURRENT_QUARTER_DLR_DATA","Quarter-over-quarter demand-side DLR metrics including live inventory, vacant inventory, raised floor space, and their percentage changes.","QOQ_LiveInventory; QOQ_VacantInventory; QOQ_LiveRaisedSpace; QOQ_VacantRaisedSpace; QOQ_per_LiveInventory; QOQ_per_VacantInventory; QOQ_per_LiveRaisedSpace; QOQ_per_VacantRaisedSpace"
+"3_PRP.V_MID_SS_USD_MEASURES","Standardized cost and pricing measures in USD for installations, cross-connect costs, hourly rates, and per-kW MRC prices.",""
+"3_PRP.V_MID_SS_EXCHANGE_RATE","Currency exchange rate table mapping ISO codes to USD conversion rates.",""
+"Random_Unrelated_Table","Placeholder unrelated table included to test LLM noise-resistance and embedding robustness.",""

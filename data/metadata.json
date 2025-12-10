@@ -1,0 +1,329 @@
+[
+  {
+    "table": "3_PRP.V_CURRENT_QUARTER_DLR_DATA",
+    "description": "Quarter-over-quarter inventory and raised floor metrics per region.",
+    "columns": [
+      {"name": "region", "type": "string", "meaning": "Geographical region", "synonyms": ["region", "area"]},
+      {"name": "QOQ_LiveInventory", "type": "numeric", "meaning": "Quarter-over-quarter live inventory (MW)", "synonyms": ["live inventory", "active power"]},
+      {"name": "QOQ_VacantInventory", "type": "numeric", "meaning": "Quarter-over-quarter vacant inventory (MW)", "synonyms": ["vacant inventory", "empty power"]},
+      {"name": "QOQ_LiveRaisedSpace", "type": "numeric", "meaning": "Quarter-over-quarter live raised floor space (SQM)", "synonyms": ["live raised space", "occupied raised space"]},
+      {"name": "QOQ_VacantRaisedSpace", "type": "numeric", "meaning": "Quarter-over-quarter vacant raised floor space (SQM)", "synonyms": ["vacant raised space"]},
+      {"name": "QOQ_per_LiveInventory", "type": "numeric", "meaning": "Percentage of live inventory", "synonyms": ["live inventory %"]},
+      {"name": "QOQ_per_VacantInventory", "type": "numeric", "meaning": "Percentage of vacant inventory", "synonyms": ["vacant inventory %"]},
+      {"name": "QOQ_per_LiveRaisedSpace", "type": "numeric", "meaning": "Percentage of live raised space", "synonyms": ["live raised space %"]},
+      {"name": "QOQ_per_VacantRaisedSpace", "type": "numeric", "meaning": "Percentage of vacant raised space", "synonyms": ["vacant raised space %"]}
+    ]
+  },
+
+  {
+    "table": "3_PRP.V_CURRENT_QUARTER_SUPPLY_DATA",
+    "description": "Quarter-over-quarter supply-side power metrics per region.",
+    "columns": [
+      {"name": "region", "type": "string", "meaning": "Geographical region", "synonyms": ["region", "area"]},
+      {"name": "QOQ_Totalpower_Deployed", "type": "numeric", "meaning": "Quarterly total deployed power (MW)", "synonyms": ["total deployed power", "power deployed"]},
+      {"name": "QOQ_Availablepower_Deployed", "type": "numeric", "meaning": "Quarterly available deployed power (MW)", "synonyms": ["available power"]},
+      {"name": "QOQ_Underconstructionpower", "type": "numeric", "meaning": "Quarterly power under construction (MW)", "synonyms": ["power pipeline"]},
+      {"name": "QOQ_Landpower", "type": "numeric", "meaning": "Quarterly land power (MW)", "synonyms": ["land capacity"]},
+      {"name": "QOQ_per_totalmarket", "type": "numeric", "meaning": "% of total market power", "synonyms": ["market %"]},
+      {"name": "QOQ_per_totalpoweravailable", "type": "numeric", "meaning": "% of available power", "synonyms": ["available %"]},
+      {"name": "QOQ_per_underconstructionpower", "type": "numeric", "meaning": "% of under-construction power", "synonyms": ["pipeline %"]},
+      {"name": "QOQ_per_landpower", "type": "numeric", "meaning": "% of land power", "synonyms": ["land %"]}],
+    "calculatedMetics":[
+        {
+          "name": "TotalDeployedQoQ",
+          "category": "Power",
+          "description": "Quarter-over-quarter deployed power (MW).",
+          "aliases": ["qoq deployed", "deployed qoq mw", "total deployed qoq"],
+          "calculation": "Take the maximum value of QOQ_Totalpower_Deployed, divide by 1000 to convert to MW and PropertyType as colocation,rounded to the nearest units place"
+        },
+        {
+          "name": "AvailableDeployedQoQ",
+          "category": "Power",
+          "description": "Quarter-over-quarter available deployed power (MW).",
+          "aliases": ["available deployed qoq", "available deploy qoq mw", "qoq available power deployed"],
+          "calculation": "Take the maximum value of QOQ_Availablepower_Deployed, divide by 1000 to convert to MW and PropertyType as colocation,rounded to the nearest units place"
+        },
+        {
+          "name": "UnderConstructionPowerQoQ",
+          "category": "Pipeline",
+          "description": "Quarter-over-quarter under construction power (MW).",
+          "aliases": ["uc power qoq", "under construction qoq", "pipeline qoq power"],
+          "calculation": "Take the maximum value of QOQ_Underconstructionpower, divide by 1000 to convert to MW and PropertyType as colocation,rounded to the nearest units place"
+        },
+        {
+          "name": "LandQoQ",
+          "category": "Land",
+          "description": "Quarter-over-quarter land bank power (MW).",
+          "aliases": ["land qoq", "land mw qoq", "land capacity qoq"],
+          "calculation": "Take the maximum value of QOQ_Landpower, divide by 1000 to convert to MW and PropertyType as colocation,rounded to the nearest units place"
+        },
+        {
+          "name": "TotalDeployedQoQPercentage",
+          "category": "Percentage",
+          "description": "Quarter-over-quarter percentage change for total deployed power.",
+          "aliases": ["total deployed qoq percent", "deployed qoq %"],
+          "calculation": "Take the maximum value of QOQ_per_totalmarket."
+        },
+        {
+          "name": "AvailableDeployedQoQPercentage",
+          "category": "Percentage",
+          "description": "Quarter-over-quarter percentage change for available deployed power.",
+          "aliases": ["available deployed qoq percent", "available deploy qoq %"],
+          "calculation": "Take the maximum value of QOQ_per_totalpoweravailable."
+        },
+        {
+          "name": "UnderConstructionPowerQoQPercentage",
+          "category": "Percentage",
+          "description": "Quarter-over-quarter percentage change for under construction power.",
+          "aliases": ["uc power qoq percent", "under construction qoq %"],
+          "calculation": "Take the maximum value of QOQ_per_underconstructionpower."
+        },
+        {
+          "name": "LandQoQPercentage",
+          "category": "Percentage",
+          "description": "Quarter-over-quarter percentage change for land power.",
+          "aliases": ["land qoq percent", "land qoq %"],
+          "calculation": "Take the maximum value of QOQ_per_landpower."
+        }
+    ]
+  },
+  {
+    "table": "3_PRP.DLR_INVENTORY",
+    "description": "Dealer inventory tracking data center properties, suites, units, and their specifications including power, capacity, and availability status.",
+    "columns": [
+      {"name": "Global_Region", "type": "string", "meaning": "Global geographic region classification", "synonyms": ["world region", "global area", "continent region"]},
+      {"name": "Region", "type": "string", "meaning": "Business region classification", "synonyms": ["business region", "operational region", "regional division"]},
+      {"name": "Market", "type": "string", "meaning": "Specific market location", "synonyms": ["location", "city", "metro area"]},
+      {"name": "Company_Name", "type": "string", "meaning": "Name of the company or entity", "synonyms": ["organization", "enterprise", "business name"]},
+      {"name": "Property_ID", "type": "string", "meaning": "Unique identifier for the property", "synonyms": ["property code", "site id", "facility id"]},
+      {"name": "Suite_ID", "type": "string", "meaning": "Unique identifier for the suite", "synonyms": ["suite code", "room id", "cabinet id"]},
+      {"name": "Unit_ID", "type": "string", "meaning": "Unique identifier for the unit", "synonyms": ["unit number", "space id", "rack id"]},
+      {"name": "Expansion_ID", "type": "string", "meaning": "Identifier for expansion projects", "synonyms": ["expansion code", "growth id", "buildout id"]},
+      {"name": "Record_Type", "type": "string", "meaning": "Type of inventory record", "synonyms": ["record category", "data type", "entry type"]},
+      {"name": "Property_Name", "type": "string", "meaning": "Name of the property", "synonyms": ["facility name", "building name", "site name"]},
+      {"name": "Property_Code", "type": "string", "meaning": "Code for the property", "synonyms": ["property identifier", "site code", "facility code"]},
+      {"name": "Airport_Code", "type": "string", "meaning": "Nearby airport code for location reference", "synonyms": ["iata code", "airport", "transport code"]},
+      {"name": "Unit", "type": "string", "meaning": "Unit designation", "synonyms": ["unit label", "space designation", "rack unit"]},
+      {"name": "Suite_Condition", "type": "string", "meaning": "Condition status of the suite", "synonyms": ["suite status", "condition", "state"]},
+      {"name": "Product_Type", "type": "string", "meaning": "Type of product/service offered", "synonyms": ["service type", "offering type", "product category"]},
+      {"name": "CPS_Dropdown", "type": "string", "meaning": "CPS (Customer Product Segment) classification", "synonyms": ["customer segment", "product segment", "cps category"]},
+      {"name": "Target_Product_Size", "type": "string", "meaning": "Target size for the product", "synonyms": ["target size", "product capacity", "size target"]},
+      {"name": "Chilled_Water", "type": "string", "meaning": "Chilled water availability indicator", "synonyms": ["cooling system", "water cooling", "chilled water system"]},
+      {"name": "Electrical_Topology", "type": "string", "meaning": "Electrical system configuration", "synonyms": ["power topology", "electrical design", "power distribution"]},
+      {"name": "Mechanical_Topology", "type": "string", "meaning": "Mechanical system configuration", "synonyms": ["mechanical design", "cooling topology", "hvac system"]},
+      {"name": "Estimated_Delivery_Date", "type": "datetime", "meaning": "Estimated date for delivery/completion", "synonyms": ["delivery date", "completion date", "ready date"]},
+      {"name": "ROFO_Customer_Name", "type": "string", "meaning": "Right of First Offer customer name", "synonyms": ["rofo client", "first offer customer", "priority customer"]},
+      {"name": "Prospects", "type": "string", "meaning": "Potential customer information", "synonyms": ["leads", "potential clients", "sales prospects"]},
+      {"name": "Comments", "type": "string", "meaning": "Additional notes or comments", "synonyms": ["notes", "remarks", "observations"]},
+      {"name": "Project_Scope", "type": "integer", "meaning": "Scope of the project", "synonyms": ["project size", "scope level", "project scale"]},
+      {"name": "Delivery_Status", "type": "integer", "meaning": "Status of delivery", "synonyms": ["status code", "delivery state", "completion status"]},
+      {"name": "Responsible_Party", "type": "integer", "meaning": "Code for responsible party/team", "synonyms": ["owner code", "responsible team", "accountable party"]},
+      {"name": "Industry_Compliance_Certifications", "type": "string", "meaning": "Industry certifications and compliance standards", "synonyms": ["certifications", "compliance standards", "industry standards"]},
+      {"name": "Modified_On", "type": "datetime", "meaning": "Timestamp of last modification", "synonyms": ["last modified", "updated on", "change timestamp"]},
+      {"name": "Modified_By_Name", "type": "string", "meaning": "Name of person who last modified", "synonyms": ["modified by", "updated by", "changer name"]},
+      {"name": "Total_Power_Available", "type": "decimal", "meaning": "Total available power in kW", "synonyms": ["total power", "available power", "power capacity"]},
+      {"name": "TotalRSF", "type": "decimal", "meaning": "Total Raised Square Footage", "synonyms": ["total square feet", "rsf total", "floor space"]},
+      {"name": "Largest_Contiguous_Suite", "type": "bigint", "meaning": "Size of largest contiguous suite", "synonyms": ["biggest suite", "maximum contiguous", "largest space"]},
+      {"name": "Designed_Density", "type": "decimal", "meaning": "Designed power density", "synonyms": ["power density", "design density", "kw per sqft"]},
+      {"name": "ROFO_kW", "type": "decimal", "meaning": "Right of First Offer power allocation", "synonyms": ["rofo power", "first offer kw", "priority power"]},
+      {"name": "Total_Active_3rd_Party_Interest_kW", "type": "bigint", "meaning": "Total third-party interest in kW", "synonyms": ["third party interest", "external interest", "partner interest"]},
+      {"name": "Estimated_Costs_USD", "type": "integer", "meaning": "Estimated costs in US dollars", "synonyms": ["estimated cost", "project cost", "usd costs"]}
+    ]
+  },
+  {
+    "table": "3_PRP.V_EDW_LEASE_ACTIVITY_CHURN",
+    "description": "Lease activity and churn data tracking lease expirations and site information.",
+    "columns": [
+      {"name": "MARKET", "type": "string", "meaning": "Market location", "synonyms": ["location", "city", "metro"]},
+      {"name": "SITE_CODE_OPERATIONAL", "type": "string", "meaning": "Operational site code", "synonyms": ["site code", "facility code", "operational code"]},
+      {"name": "ADDRESS1", "type": "string", "meaning": "Primary address line", "synonyms": ["address", "street address", "location address"]},
+      {"name": "RAISED_SF__C_ASSETID", "type": "string", "meaning": "Raised square footage asset ID", "synonyms": ["asset id", "rsf asset", "square footage id"]},
+      {"name": "EXPIRATION_DATE", "type": "date", "meaning": "Lease expiration date", "synonyms": ["lease end date", "contract expiry", "termination date"]}
+    ]
+  },
+  {
+    "table": "3_PRP.V_GLOBAL_CAPACITY_REPORT",
+    "description": "Global capacity report showing vacancy, construction, and land bank data across regions.",
+    "columns": [
+      {"name": "Market", "type": "string", "meaning": "Market location", "synonyms": ["location", "city", "metro"]},
+      {"name": "Country", "type": "string", "meaning": "Country name", "synonyms": ["nation", "country name", "territory"]},
+      {"name": "STATE", "type": "string", "meaning": "State or province", "synonyms": ["province", "region", "state name"]},
+      {"name": "SiteCode", "type": "string", "meaning": "Site identification code", "synonyms": ["site id", "property code", "facility code"]},
+      {"name": "Property", "type": "string", "meaning": "Property name", "synonyms": ["property name", "facility", "building"]},
+      {"name": "VacantScale", "type": "decimal", "meaning": "Vacant scale space", "synonyms": ["vacant scale", "available scale", "scale vacancy"]},
+      {"name": "VacantColo", "type": "decimal", "meaning": "Vacant colocation space", "synonyms": ["vacant colo", "available colo", "colo vacancy"]},
+      {"name": "ScaleUnderConstruction", "type": "decimal", "meaning": "Scale space under construction", "synonyms": ["scale construction", "building scale", "scale buildout"]},
+      {"name": "ColoUnderConstruction", "type": "decimal", "meaning": "Colocation space under construction", "synonyms": ["colo construction", "building colo", "colo buildout"]},
+      {"name": "ExpiringLease", "type": "decimal", "meaning": "Space with expiring leases", "synonyms": ["lease expiration", "expiring space", "ending leases"]},
+      {"name": "AvailableShell", "type": "integer", "meaning": "Available shell space", "synonyms": ["shell space", "available building", "shell capacity"]},
+      {"name": "LandBank", "type": "decimal", "meaning": "Land bank capacity", "synonyms": ["land reserve", "future capacity", "land inventory"]},
+      {"name": "GeoId", "type": "string", "meaning": "Geographic identifier", "synonyms": ["geography id", "location id", "geo code"]},
+      {"name": "GlobalRegion", "type": "string", "meaning": "Global region classification", "synonyms": ["world region", "global area", "continent"]},
+      {"name": "BusinessRegion", "type": "string", "meaning": "Business region classification", "synonyms": ["operational region", "business area", "region division"]},
+      {"name": "GlobalRegionID", "type": "bigint", "meaning": "Global region identifier", "synonyms": ["global region code", "world region id", "continent id"]},
+      {"name": "BusinessRegionID", "type": "bigint", "meaning": "Business region identifier", "synonyms": ["business region code", "operational region id", "region code"]},
+      {"name": "GrandTotal", "type": "decimal", "meaning": "Grand total capacity", "synonyms": ["total capacity", "overall total", "sum total"]},
+      {"name": "SurrogateKey", "type": "string", "meaning": "Unique surrogate key for the record", "synonyms": ["unique key", "record id", "surrogate id"]}
+    ]
+  },
+  {
+    "table": "3_PRP.V_LP_DEMAND_COLO_RETAIL_WHOLESALE",
+    "description": "Long-term demand forecast for colocation retail and wholesale segments by market and region.",
+    "columns": [
+      {"name": "Frequency", "type": "string", "meaning": "Data frequency (e.g., monthly, quarterly)", "synonyms": ["time frequency", "periodicity", "data interval"]},
+      {"name": "Period", "type": "string", "meaning": "Time period for the data", "synonyms": ["time period", "date period", "interval"]},
+      {"name": "Market", "type": "string", "meaning": "Market location", "synonyms": ["location", "city", "metro"]},
+      {"name": "Segment", "type": "string", "meaning": "Market segment", "synonyms": ["business segment", "market category", "segment type"]},
+      {"name": "Full_Segment", "type": "string", "meaning": "Full segment description", "synonyms": ["complete segment", "detailed segment", "segment detail"]},
+      {"name": "Vendor", "type": "string", "meaning": "Vendor or provider name", "synonyms": ["provider", "supplier", "service provider"]},
+      {"name": "Country", "type": "string", "meaning": "Country name", "synonyms": ["nation", "country name", "territory"]},
+      {"name": "Region", "type": "string", "meaning": "Regional classification", "synonyms": ["geographic region", "area", "division"]},
+      {"name": "Revenue", "type": "string", "meaning": "Revenue data", "synonyms": ["income", "sales", "earnings"]},
+      {"name": "SurrogateKey", "type": "string", "meaning": "Unique surrogate key for the record", "synonyms": ["unique key", "record id", "surrogate id"]}
+    ]
+  },
+  {
+    "table": "3_PRP.V_LP_DEMAND_CROSS_CONNECTS",
+    "description": "Long-term demand forecast for cross-connects by market, operator, and region.",
+    "columns": [
+      {"name": "Frequency", "type": "string", "meaning": "Data frequency (e.g., monthly, quarterly)", "synonyms": ["time frequency", "periodicity", "data interval"]},
+      {"name": "Period", "type": "string", "meaning": "Time period for the data", "synonyms": ["time period", "date period", "interval"]},
+      {"name": "MAIN_MARKET", "type": "string", "meaning": "Primary market location", "synonyms": ["main location", "primary city", "major market"]},
+      {"name": "Segment", "type": "string", "meaning": "Market segment", "synonyms": ["business segment", "market category", "segment type"]},
+      {"name": "Metric", "type": "string", "meaning": "Measurement metric", "synonyms": ["measure", "indicator", "kpi"]},
+      {"name": "Operator", "type": "string", "meaning": "Network operator", "synonyms": ["carrier", "provider", "network provider"]},
+      {"name": "Country", "type": "string", "meaning": "Country name", "synonyms": ["nation", "country name", "territory"]},
+      {"name": "Region", "type": "string", "meaning": "Regional classification", "synonyms": ["geographic region", "area", "division"]},
+      {"name": "CROSS_CONNECTS", "type": "string", "meaning": "Cross-connect count or value", "synonyms": ["cross connects", "interconnections", "network links"]},
+      {"name": "Revenue", "type": "string", "meaning": "Revenue data", "synonyms": ["income", "sales", "earnings"]},
+      {"name": "SurrogateKey", "type": "string", "meaning": "Unique surrogate key for the record", "synonyms": ["unique key", "record id", "surrogate id"]}
+    ]
+  },
+  {
+    "table": "3_PRP.V_LP_DEMAND_GEOGRAPHICAL",
+    "description": "Long-term demand geographical data with market coordinates and regional classifications.",
+    "columns": [
+      {"name": "SurrogateKey", "type": "bigint", "meaning": "Unique surrogate key for the record", "synonyms": ["unique key", "record id", "surrogate id"]},
+      {"name": "Market", "type": "string", "meaning": "Market location", "synonyms": ["location", "city", "metro"]},
+      {"name": "Country", "type": "string", "meaning": "Country name", "synonyms": ["nation", "country name", "territory"]},
+      {"name": "BusinessRegion", "type": "string", "meaning": "Business region classification", "synonyms": ["operational region", "business area", "region division"]},
+      {"name": "GlobalRegion", "type": "string", "meaning": "Global region classification", "synonyms": ["world region", "global area", "continent"]},
+      {"name": "Latitude", "type": "string", "meaning": "Geographic latitude coordinate", "synonyms": ["lat", "north-south coordinate", "parallel"]},
+      {"name": "Longitude", "type": "string", "meaning": "Geographic longitude coordinate", "synonyms": ["long", "lon", "east-west coordinate", "meridian"]}
+    ]
+  },
+  {
+  "table": "3_PRP.V_MID_DATACENTER_SUPPLY",
+  "description": "Datacenter-level supply metrics including power, space, geolocation, and provider metadata. Includes calculated metrics aligned with dbo.GetRegionMetrics stored procedure.",
+  "columns": [
+      {"name": "GeographicalId", "type": "varchar(400)", "meaning": "", "synonyms": []},
+      {"name": "DataCenterId", "type": "varchar(400)", "meaning": "", "synonyms": []},
+      {"name": "Ownershiptype", "type": "varchar(700)", "meaning": "", "synonyms": []},
+      {"name": "DataCenterName", "type": "varchar(1200)", "meaning": "", "synonyms": []},
+      {"name": "DataCenterProviderId", "type": "varchar(400)", "meaning": "", "synonyms": []},
+      {"name": "DataCenterProviderName", "type": "varchar(-1)", "meaning": "", "synonyms": []},
+      {"name": "RealisticSellable", "type": "decimal", "meaning": "", "synonyms": []},
+      {"name": "ExpansionDate", "type": "varchar(10)", "meaning": "", "synonyms": []},
+      {"name": "Longitude", "type": "varchar(400)", "meaning": "", "synonyms": []},
+      {"name": "YearBuilt", "type": "bigint", "meaning": "", "synonyms": []},
+      {"name": "OperationalStatus", "type": "varchar(700)", "meaning": "", "synonyms": []},
+      {"name": "ProductType", "type": "varchar(700)", "meaning": "", "synonyms": []},
+      {"name": "TotalRentableSQFT", "type": "decimal", "meaning": "", "synonyms": []},
+      {"name": "AvailableRentableSQFT", "type": "decimal", "meaning": "", "synonyms": []},
+      {"name": "SingleMultiTenant", "type": "bigint", "meaning": "", "synonyms": []},
+      {"name": "DirectCompetitor", "type": "varchar(6)", "meaning": "", "synonyms": []},
+      {"name": "AvailableRaisedSQFT", "type": "decimal", "meaning": "", "synonyms": []},
+      {"name": "TotalRaisedSQFT", "type": "decimal", "meaning": "", "synonyms": []},
+      {"name": "TotalPowerUtilized", "type": "decimal", "meaning": "", "synonyms": []},
+      {"name": "Latitude", "type": "varchar(400)", "meaning": "", "synonyms": []},
+      {"name": "City", "type": "varchar(1200)", "meaning": "", "synonyms": []},
+      {"name": "Market", "type": "varchar(-1)", "meaning": "", "synonyms": []},
+      {"name": "MarketId", "type": "varchar(400)", "meaning": "", "synonyms": []},
+      {"name": "Internal", "type": "varchar(6)", "meaning": "", "synonyms": []},
+      {"name": "TotalPower", "type": "decimal", "meaning": "", "synonyms": []},
+      {"name": "TotalPowerAvailable", "type": "decimal", "meaning": "", "synonyms": []},
+      {"name": "GlobalRegion", "type": "varchar(700)", "meaning": "", "synonyms": []},
+      {"name": "BusinessRegion", "type": "varchar(700)", "meaning": "", "synonyms": []},
+      {"name": "GlobalRegionID", "type": "bigint", "meaning": "", "synonyms": []},
+      {"name": "BusinessRegionID", "type": "bigint", "meaning": "", "synonyms": []},
+      {"name": "Country", "type": "varchar(1200)", "meaning": "", "synonyms": []},
+      {"name": "STATE", "type": "varchar(1200)", "meaning": "", "synonyms": []},
+      {"name": "AirportCode", "type": "varchar(400)", "meaning": "", "synonyms": []},
+      {"name": "Status", "type": "varchar(9)", "meaning": "", "synonyms": []},
+      {"name": "Source", "type": "varchar(1200)", "meaning": "", "synonyms": []},
+      {"name": "CustomerType", "type": "varchar(700)", "meaning": "", "synonyms": []},
+      {"name": "PropertyType", "type": "varchar(700)", "meaning": "", "synonyms": []},
+      {"name": "Address", "type": "varchar(8000)", "meaning": "", "synonyms": []},
+      {"name": "SurrogateKey", "type": "varchar(-1)", "meaning": "", "synonyms": []}
+    ],
+
+  "calculatedMetrics": [
+    {
+      "name": "TotalDeployed",
+      "category": "Power",
+      "description": "Total deployed power (MW) for datacenters with status Deployed or Shell.",
+      "aliases": ["total deployed", "deployed mw", "mw deployed", "deployed power"],
+      "calculation": "Sum of TotalPower for all datacenters with OperationalStatus as Deployed or Shell and PropertyType as colocation,rounded to the nearest units place"
+    },
+    {
+      "name": "AvailableDeployed",
+      "category": "Power",
+      "description": "Available deployed power (MW). Uses TotalPowerAvailable for Deployed sites. /1000 conversion.",
+      "aliases": ["available deployed", "available deploy mw", "available power deployed"],
+      "calculation": "Sum of TotalPowerAvailable for all datacenters with OperationalStatus as Deployed and PropertyType as colocation,rounded to the nearest units place"
+    },
+    {
+      "name": "UnderConstructionPower",
+      "category": "Pipeline",
+      "description": "Power pipeline (MW). Includes Under Construction + Planned. /1000 conversion.",
+      "aliases": ["pipeline power", "uc power", "under construction", "planned power"],
+      "calculation": "Sum of TotalPower for all datacenters with OperationalStatus as Planned or Under Construction and PropertyType as colocation,rounded to the nearest units place"
+    },
+    {
+      "name": "Land",
+      "category": "Land",
+      "description": "Land bank power (MW). Includes sites with OperationalStatus = Land.",
+      "aliases": ["land capacity", "land mw", "land power"],
+      "calculation": "Sum of AvailableRaisedSqft for all datacenters with OperationalStatus as Land and Internal as True and PropertyType as colocation,rounded to the nearest units place"
+    }
+  ],
+
+  "quarterlyMetricsSource": {
+    "joins": [
+      {
+        "table": "3_PRP.V_CURRENT_QUARTER_SUPPLY_DATA",
+        "on": "3_PRP.V_MID_DATACENTER_SUPPLY.GlobalRegion = 3_PRP.V_CURRENT_QUARTER_SUPPLY_DATA.region"
+      },
+      {
+        "table": "3_PRP.V_CURRENT_QUARTER_DLR_DATA",
+        "on": "3_PRP.V_MID_DATACENTER_SUPPLY.GlobalRegion = 3_PRP.V_CURRENT_QUARTER_DLR_DATA.region"
+      }
+    ],
+    "note": "QoQ metrics appear in joined tables and represent quarterly deltas and percentages. These should be included in any NL→SQL mapping when user requests 'QoQ', 'trend', 'quarter', etc."
+  }
+
+  },
+
+  {
+    "table": "3_PRP.V_MID_SS_USD_MEASURES",
+    "description": "Cost and price metrics expressed in USD for installation, cross-connect, operations, and per-kW charges.",
+    "columns": [
+      {"name": "HASH_VALUE", "type": "string", "meaning": "Row deterministic hash", "synonyms": ["checksum", "id"]},
+      {"name": "COST_PER_CABINET_INSTALLATION_USD", "type": "numeric", "meaning": "Cost to install a cabinet in USD", "synonyms": ["cabinet install cost", "usd install"]},
+      {"name": "SINGLE_CROSS_CONNECT_INSTALLATION_COST_USD", "type": "numeric", "meaning": "Installation cost of a single cross-connect", "synonyms": ["cross connect install", "connect cost"]},
+      {"name": "SINGLE_CROSS_CONNECT_MONTHLY_RENTAL_COST_USD", "type": "numeric", "meaning": "Monthly rental cost of a cross-connect", "synonyms": ["cross connect rental", "connect monthly cost"]},
+      {"name": "COST_PER_HOUR_IN_BUSINESS_HOURS_USD", "type": "numeric", "meaning": "Operational cost per hour during business hours", "synonyms": ["business hours cost", "hourly rate on-hours"]},
+      {"name": "COST_PER_HOUR_IN_NON_BUSINESS_HOURS_USD", "type": "numeric", "meaning": "Operational cost during non-business hours", "synonyms": ["off-hours cost", "night rate"]},
+      {"name": "TOTAL_MRC_PER_KW_IT_POWER_USD", "type": "numeric", "meaning": "Total monthly recurring charge per kW of IT power", "synonyms": ["mrc per kw", "monthly power cost"]}
+    ]
+  },
+
+  {
+    "table": "3_PRP.V_MID_SS_EXCHANGE_RATE",
+    "description": "Exchange rates mapping currency ISO codes to USD conversion values.",
+    "columns": [
+      {"name": "ISO_CODE", "type": "string", "meaning": "Currency ISO code", "synonyms": ["currency", "code", "iso currency"]},
+      {"name": "RATE_TO_USD", "type": "float", "meaning": "Conversion rate from given currency to USD", "synonyms": ["exchange rate", "usd rate", "fx rate"]}
+    ]
+  }
+]

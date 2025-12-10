@@ -1,0 +1,11 @@
+requirements.txt
+# virtual environment
+myenv/
+
+# secrets
+.env
+
+# system files
+__pycache__/
+*.pyc
+.chainlit/
