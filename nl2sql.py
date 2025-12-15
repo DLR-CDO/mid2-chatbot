@@ -4,12 +4,10 @@ import json
 import asyncio
 from typing import List, Dict, Any, Annotated, Optional
 import pyodbc
-import struct
 
 from dotenv import load_dotenv
 import chainlit as cl
 from chainlit.message import Message
-from azure.identity import ClientSecretCredential
 
 # Semantic Kernel imports
 import semantic_kernel as sk
@@ -26,13 +24,11 @@ from semantic_kernel.connectors.ai.prompt_execution_settings import PromptExecut
 # ------------------------------------------------------------
 load_dotenv()
 
-SQL_ENDPOINT = os.getenv("SQL_ENDPOINT")
-DATABASE = os.getenv("DATABASE")
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-# AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-# AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
-# AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
+# Updated to match your new connection string format
+DB_SERVER = os.getenv("DB_Data_Source")
+DB_DATABASE = os.getenv("DB_Initial_Catalog")
+DB_USER = os.getenv("DB_User_ID")
+DB_PASSWORD = os.getenv("DB_Password")
 
 # ============================================================
 # LOAD METADATA + DESCRIPTIONS
@@ -71,14 +67,10 @@ class NL2SQLChatbot:
             deployment_name=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
             api_version=os.getenv("AZURE_OPENAI_API_VERSION")
         )
-        print(os.getenv("AZURE_OPENAI_BASE_URL"))
-        print(os.getenv("AZURE_OPENAI_API_KEY"))
-        print(os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"))
-        print(os.getenv("AZURE_OPENAI_API_VERSION"))
-
-        # chat_completion = 
+        
         self.kernel.add_service(self.chat_service)
         self.chat_service = self.kernel.get_service()
+        
         # Initialize plugins
         self._setup_plugins()
         
@@ -202,43 +194,30 @@ class NL2SQLChatbot:
                     "sql": response
                 }
         
-        def get_access_token() -> str:
-            """Retrieve Azure AD token for SQL Authentication."""
-            credential = ClientSecretCredential(
-                tenant_id=os.getenv("TENANT_ID"),
-                client_id=os.getenv("CLIENT_ID"),
-                client_secret=os.getenv("CLIENT_SECRET")
-            )
-            token = credential.get_token(os.getenv("SCOPE"))
-            return token.token
-
-        
-        # Create database execution function
+        # Create database execution function - UPDATED FOR SQL AUTHENTICATION
         @kernel_function(description="Execute SQL query on Azure SQL database",name="run_sql")
         async def run_sql(
             sql_query: Annotated[str, "SQL query to execute"]
         ) -> Annotated[List[Dict], "Query results"]:
-            """Execute SQL query on Azure SQL Server."""
-            
-            print("\nAuthenticating with Azure AD...")
-            access_token = get_access_token()
-
-            token_bytes = access_token.encode("utf-16-le")
-            token_struct = struct.pack("=i", len(token_bytes)) + token_bytes
-
-            attrs_before = {1256: token_struct}  # Access token attribute
-
-            conn_str = (
-                "DRIVER={ODBC Driver 18 for SQL Server};"
-                f"SERVER=tcp:{SQL_ENDPOINT},1433;"
-                f"DATABASE={DATABASE};"
-                "Encrypt=yes;"
-                "TrustServerCertificate=no;"
-                "Connection Timeout=30;"
-            )
+            """Execute SQL query on Azure SQL Server using SQL authentication."""
             
             try:
-                conn = pyodbc.connect(conn_str,attrs_before=attrs_before)
+                # Build connection string for SQL Server authentication
+                conn_str = (
+                    "DRIVER={ODBC Driver 18 for SQL Server};"
+                    f"SERVER={DB_SERVER};"
+                    f"DATABASE={DB_DATABASE};"
+                    f"UID={DB_USER};"
+                    f"PWD={DB_PASSWORD};"
+                    "Encrypt=yes;"
+                    "TrustServerCertificate=no;"
+                    "Connection Timeout=30;"
+                )
+                
+                print(f"Connecting to: {DB_SERVER}, Database: {DB_DATABASE}")
+                
+                # Connect using SQL Server authentication
+                conn = pyodbc.connect(conn_str)
                 cursor = conn.cursor()
                 
                 cursor.execute(sql_query)
@@ -385,7 +364,7 @@ async def on_message(message: cl.Message):
     chat_history.add_user_message(message.content)
     
     # Create and send a loading indicator
-    msg = cl.Message(content="")
+    msg = cl.Message(content="⏳ Processing your query... Please wait.")
     await msg.send()
     
     # Process the query
@@ -454,26 +433,4 @@ async def on_message(message: cl.Message):
 async def on_chat_resume(thread):
     """Handle chat resume."""
     chat_history = ChatHistory()
-    # chat_history.add_system_message(SYSTEM_PROMPT)
-
-    # Restore chat history from thread
-    # for message in thread["steps"]:
-    #     if message["type"] == "user_message":
-    #         chat_history.add_user_message(message["output"])
-    #     elif message["type"] == "assistant_message":
-    #         chat_history.add_assistant_message(message["output"])
-    
-    # cl.user_session.set("chat_history", chat_history)
-
-# ============================================================
-# MAIN ENTRY POINT
-# ============================================================
-
-# if __name__ == "__main__":
-#     # Run the Chainlit app
-#     import chainlit.cli
-    
-#     # This would typically be run via: chainlit run app.py
-#     # For direct execution:
-#     from chainlit.cli import run_chainlit
-#     run_chainlit(__file__)
+    cl.user_session.set("chat_history", chat_history)
