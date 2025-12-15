@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#4F46E5" opacity="0.1"/>
+  
+  <!-- Main workflow diagram -->
+  <g transform="translate(100, 100)">
+    <!-- Top circle (start node) -->
+    <circle cx="0" cy="-45" r="15" fill="#4F46E5" stroke="#ffffff" stroke-width="3"/>
+    <circle cx="0" cy="-45" r="6" fill="#ffffff"/>
+    
+    <!-- Connection line 1 -->
+    <line x1="0" y1="-30" x2="0" y2="-5" stroke="#4F46E5" stroke-width="3"/>
+    <polygon points="0,-5 -4,-12 4,-12" fill="#4F46E5"/>
+    
+    <!-- Middle diamond (decision node) -->
+    <g transform="translate(0, 15)">
+      <rect x="-18" y="-18" width="36" height="36" fill="#4F46E5" stroke="#ffffff" stroke-width="3" transform="rotate(45)"/>
+      <path d="M -6,-2 L -2,2 L 6,-6" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+    
+    <!-- Left branch -->
+    <line x1="-13" y1="28" x2="-35" y2="50" stroke="#4F46E5" stroke-width="3"/>
+    <polygon points="-35,50 -32,42 -38,44" fill="#4F46E5"/>
+    <circle cx="-45" cy="60" r="12" fill="#10B981" stroke="#ffffff" stroke-width="3"/>
+    <path d="M -51,60 L -47,64 L -39,56" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Right branch -->
+    <line x1="13" y1="28" x2="35" y2="50" stroke="#4F46E5" stroke-width="3"/>
+    <polygon points="35,50 38,42 32,44" fill="#4F46E5"/>
+    <circle cx="45" cy="60" r="12" fill="#10B981" stroke="#ffffff" stroke-width="3"/>
+    <path d="M 39,60 L 43,64 L 51,56" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    
+    <!-- Plus icon for "creation" -->
+    <g transform="translate(-60, -55)">
+      <circle cx="0" cy="0" r="16" fill="#10B981" stroke="#ffffff" stroke-width="2"/>
+      <line x1="-8" y1="0" x2="8" y2="0" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+      <line x1="0" y1="-8" x2="0" y2="8" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

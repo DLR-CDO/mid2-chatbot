@@ -153,7 +153,6 @@ class NL2SQLChatbot:
             filtered_metadata = [
                 item for item in metadata
                 if item.get("table") in relevant_tables
-                or item.get("procedure") in relevant_tables
             ]
             
             # 3. Prepare metadata for assistant message
@@ -331,6 +330,37 @@ def oauth_callback(
 ) -> Optional[cl.User]:
   return default_user
 
+@cl.set_starters
+async def set_starters():
+    return [
+        cl.Starter(
+            label="List providers",
+            message="List of providers in Hyderabad?",
+            icon="./public/access-onboarding.png",
+        ),
+        cl.Starter(
+            label="Power market share",
+            message="Total power market share of NTT in India compared to top 5 providers?",
+            icon="./public/workflow_icon.svg",
+        ),
+        cl.Starter(
+            label="Space market share",
+            message="Total space market share of DLR in India  compared to top 5 providers?",
+            icon="./public/secret-management.png",
+        ),
+        cl.Starter(
+            label="Provider details",
+            message="who is the provider for datacenter - Nanxiang Valley Cluster G",
+            icon="./public/roles-permissions.png",
+        ),
+        cl.Starter(
+            label="Deployed QoQ",
+            message="Total Deployed QoQ region-wise?",
+            icon="./public/backup-restore.png",
+        ),
+    ]
+
+
 @cl.on_chat_start
 async def on_chat_start():
     """Initialize chatbot when chat starts."""
@@ -341,18 +371,30 @@ async def on_chat_start():
     # Initialize chat history
     chat_history = ChatHistory()
     cl.user_session.set("chat_history", chat_history)
-    
-    # Send welcome message
-    welcome_msg = """🚀 **NL2SQL Chatbot**
-    
-        I can help you query your database using natural language. Just ask questions like:
-        - "Show me total power capacity by region"
-        - "What's the live inventory for Q3?"
-        - "List top 5 datacenters by supply"
 
-        I'll find the relevant tables, generate SQL, and execute it for you!"""
+
+# @cl.on_chat_start
+# async def on_chat_start():
+#     """Initialize chatbot when chat starts."""
+#     chatbot = NL2SQLChatbot()
+#     print('user instance :',chatbot)
+#     cl.user_session.set("chatbot", chatbot)
     
-    await cl.Message(content=welcome_msg).send()
+#     # Initialize chat history
+#     chat_history = ChatHistory()
+#     cl.user_session.set("chat_history", chat_history)
+    
+#     # Send welcome message
+#     welcome_msg = """🚀 **NL2SQL Chatbot**
+    
+#         I can help you query your database using natural language. Just ask questions like:
+#         - "Show me total power capacity by region"
+#         - "What's the live inventory for Q3?"
+#         - "List top 5 datacenters by supply"
+
+#         I'll find the relevant tables, generate SQL, and execute it for you!"""
+    
+#     await cl.Message(content=welcome_msg).send()
 
 @cl.on_message
 async def on_message(message: cl.Message):

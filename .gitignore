@@ -1,4 +1,3 @@
-requirements.txt
 # virtual environment
 myenv/
 
@@ -8,4 +7,4 @@ myenv/
 # system files
 __pycache__/
 *.pyc
-.chainlit/
+.chainlit/translations/
