@@ -1,0 +1,10 @@
+pyodbc
+python-dotenv
+azure-identity
+azure-identity-broker
+semantic-kernel==1.39.0
+chainlit
+pyodbc
+python-dotenv
+asyncpg
+azure-search-documents

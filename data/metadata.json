@@ -1,0 +1,375 @@
+[
+  {
+    "table": "3_PRP.V_CURRENT_QUARTER_DLR_DATA",
+    "description": "Quarter-over-quarter inventory and raised floor metrics per region. Contains QoQ metrics for live/vacant inventory and raised space with percentages.",
+    "columns": [
+      {"name": "region", "type": "string", "meaning": "Geographical region", "synonyms": ["region", "area"]},
+      {"name": "QOQ_LiveInventory", "type": "numeric", "meaning": "Quarter-over-quarter live inventory (KW)", "synonyms": ["Live Inventory QoQ", "live inventory qoq", "qoq live inventory"]},
+      {"name": "QOQ_VacantInventory", "type": "numeric", "meaning": "Quarter-over-quarter vacant inventory (KW)", "synonyms": ["Vacant Inventory QoQ", "vacant inventory qoq", "qoq vacant inventory"]},
+      {"name": "QOQ_LiveRaisedSpace", "type": "numeric", "meaning": "Quarter-over-quarter live raised floor space (SFT)", "synonyms": ["Live raised space QoQ", "live raised space qoq", "qoq live raised space"]},
+      {"name": "QOQ_VacantRaisedSpace", "type": "numeric", "meaning": "Quarter-over-quarter vacant raised floor space (SFT)", "synonyms": ["Vacant raised space QoQ", "vacant raised space qoq", "qoq vacant raised space"]},
+      {"name": "QOQ_per_LiveInventory", "type": "numeric", "meaning": "Percentage of live inventory", "synonyms": ["Live Inventory QoQ percent", "live inventory qoq %", "qoq live inventory percentage"]},
+      {"name": "QOQ_per_VacantInventory", "type": "numeric", "meaning": "Percentage of vacant inventory", "synonyms": ["Vacant Inventory QoQ percent", "vacant inventory qoq %", "qoq vacant inventory percentage"]},
+      {"name": "QOQ_per_LiveRaisedSpace", "type": "numeric", "meaning": "Percentage of live raised space", "synonyms": ["Live raised space QoQ percent", "live raised space qoq %", "qoq live raised space percentage"]},
+      {"name": "QOQ_per_VacantRaisedSpace", "type": "numeric", "meaning": "Percentage of vacant raised space", "synonyms": ["Vacant raised space QoQ percent", "vacant raised space qoq %", "qoq vacant raised space percentage"]}
+    ]
+  },
+  {
+    "table": "3_PRP.V_CURRENT_QUARTER_SUPPLY_DATA",
+    "description": "Quarter-over-quarter supply-side power metrics per region. Contains QoQ metrics for deployed, available, under construction, and land power with percentages.",
+    "columns": [
+      {"name": "region", "type": "string", "meaning": "Geographical region", "synonyms": ["region", "area"]},
+      {"name": "QOQ_Totalpower_Deployed", "type": "numeric", "meaning": "Quarterly total deployed power (KW)", "synonyms": ["Total Deployed QoQ", "total deployed qoq", "qoq total deployed power"]},
+      {"name": "QOQ_Availablepower_Deployed", "type": "numeric", "meaning": "Quarterly available deployed power (KW)", "synonyms": ["Available Deployed QoQ", "available deployed qoq", "qoq available deployed power"]},
+      {"name": "QOQ_Underconstructionpower", "type": "numeric", "meaning": "Quarterly power under construction (KW)", "synonyms": ["Underconstruction QoQ", "underconstruction qoq", "qoq under construction power"]},
+      {"name": "QOQ_Landpower", "type": "numeric", "meaning": "Quarterly land power (KW)", "synonyms": ["Land QoQ", "land qoq", "qoq land power"]},
+      {"name": "QOQ_per_totalmarket", "type": "numeric", "meaning": "% of total market power", "synonyms": ["Total Deployed QoQ percent", "total deployed qoq %", "qoq total market percentage"]},
+      {"name": "QOQ_per_totalpoweravailable", "type": "numeric", "meaning": "% of available power", "synonyms": ["Available Deployed QoQ percent", "available deployed qoq %", "qoq available power percentage"]},
+      {"name": "QOQ_per_underconstructionpower", "type": "numeric", "meaning": "% of under-construction power", "synonyms": ["Underconstruction QoQ percent", "underconstruction qoq %", "qoq under construction percentage"]},
+      {"name": "QOQ_per_landpower", "type": "numeric", "meaning": "% of land power", "synonyms": ["Land QoQ percent", "land qoq %", "qoq land power percentage"]}
+    ]
+  },
+  {
+    "table": "3_PRP.V_MID_DATACENTER_SUPPLY",
+    "description": "Datacenter inventory with facility-level power, space, location, and operational metrics. Used to calculate total deployed power, available deployed, under construction, land, inventory, and raised space metrics by region.",
+    "columns": [
+      {"name": "GeographicalId", "type": "varchar(400)", "meaning": "Geographic identifier", "synonyms": ["geo id", "location id"]},
+      {"name": "DataCenterId", "type": "varchar(400)", "meaning": "Unique datacenter identifier", "synonyms": ["dc id", "datacenter id", "facility id"]},
+      {"name": "Ownershiptype", "type": "varchar(700)", "meaning": "Type of ownership", "synonyms": ["ownership type", "owner type"]},
+      {"name": "DataCenterName", "type": "varchar(1200)", "meaning": "Name of the datacenter", "synonyms": ["dc name", "facility name", "datacenter name"]},
+      {"name": "DataCenterProviderId", "type": "varchar(400)", "meaning": "Provider identifier", "synonyms": ["provider id", "operator id"]},
+      {"name": "DataCenterProviderName", "type": "varchar(-1)", "meaning": "Name of the provider", "synonyms": ["provider name", "operator name"]},
+      {"name": "RealisticSellable", "type": "decimal", "meaning": "Realistic sellable capacity", "synonyms": ["sellable capacity", "available to sell"]},
+      {"name": "ExpansionDate", "type": "varchar(10)", "meaning": "Expansion date", "synonyms": ["expansion timeline", "buildout date"]},
+      {"name": "Longitude", "type": "varchar(400)", "meaning": "Longitude coordinate", "synonyms": ["lon", "long"]},
+      {"name": "YearBuilt", "type": "bigint", "meaning": "Year built", "synonyms": ["construction year", "build year"]},
+      {"name": "OperationalStatus", "type": "varchar(700)", "meaning": "Operational status of datacenter", "synonyms": ["status", "operating status", "dc status"]},
+      {"name": "ProductType", "type": "varchar(700)", "meaning": "Type of product/service", "synonyms": ["product type", "service type"]},
+      {"name": "TotalRentableSQFT", "type": "decimal", "meaning": "Total rentable square footage", "synonyms": ["total rentable sqft", "rentable space"]},
+      {"name": "AvailableRentableSQFT", "type": "decimal", "meaning": "Available rentable square footage", "synonyms": ["available rentable sqft", "vacant rentable space"]},
+      {"name": "SingleMultiTenant", "type": "bigint", "meaning": "Single or multi-tenant indicator", "synonyms": ["tenant type", "multi-tenant flag"]},
+      {"name": "DirectCompetitor", "type": "varchar(6)", "meaning": "Direct competitor flag", "synonyms": ["competitor flag", "competitor indicator"]},
+      {"name": "AvailableRaisedSQFT", "type": "decimal", "meaning": "Available raised square footage", "synonyms": ["available raised sqft", "vacant raised space"]},
+      {"name": "TotalRaisedSQFT", "type": "decimal", "meaning": "Total raised square footage", "synonyms": ["total raised sqft", "raised floor space"]},
+      {"name": "TotalPowerUtilized", "type": "decimal", "meaning": "Total power utilized", "synonyms": ["power utilized", "used power"]},
+      {"name": "Latitude", "type": "varchar(400)", "meaning": "Latitude coordinate", "synonyms": ["lat"]},
+      {"name": "City", "type": "varchar(1200)", "meaning": "City location", "synonyms": ["city name", "location city"]},
+      {"name": "Market", "type": "varchar(-1)", "meaning": "Market location", "synonyms": ["market name", "metro area"]},
+      {"name": "MarketId", "type": "varchar(400)", "meaning": "Market identifier", "synonyms": ["market id"]},
+      {"name": "Internal", "type": "varchar(6)", "meaning": "Internal flag", "synonyms": ["internal indicator", "internal flag"]},
+      {"name": "TotalPowerAvailable", "type": "decimal", "meaning": "Total power available", "synonyms": ["available power", "power capacity"]},
+      {"name": "TotalPower", "type": "decimal", "meaning": "Total power capacity", "synonyms": ["total power", "power capacity", "total KW"]},
+      {"name": "GlobalRegion", "type": "varchar(700)", "meaning": "Global region classification", "synonyms": ["region", "area", "global area", "geographic region"], "values":["NA", "EMEA", "APAC", "LATAM"]},
+      {"name": "BusinessRegion", "type": "varchar(700)", "meaning": "Business region classification", "synonyms": ["business area", "operational region"]},
+      {"name": "GlobalRegionID", "type": "bigint", "meaning": "Global region identifier", "synonyms": ["region id", "global region id"]},
+      {"name": "BusinessRegionID", "type": "bigint", "meaning": "Business region identifier", "synonyms": ["business region id"]},
+      {"name": "Country", "type": "varchar(1200)", "meaning": "Country name", "synonyms": ["country", "nation"]},
+      {"name": "STATE", "type": "varchar(1200)", "meaning": "State or province", "synonyms": ["state", "province"]},
+      {"name": "AirportCode", "type": "varchar(400)", "meaning": "Airport code", "synonyms": ["airport", "iata code"]},
+      {"name": "Status", "type": "varchar(9)", "meaning": "Status indicator", "synonyms": ["status flag", "record status"]},
+      {"name": "Source", "type": "varchar(1200)", "meaning": "Data source", "synonyms": ["source system", "data source"]},
+      {"name": "CustomerType", "type": "varchar(700)", "meaning": "Type of customer", "synonyms": ["customer type", "client type"]},
+      {"name": "PropertyType", "type": "varchar(700)", "meaning": "Type of property", "synonyms": ["property type", "facility type"]},
+      {"name": "Address", "type": "varchar(8000)", "meaning": "Physical address", "synonyms": ["location address", "street address"]},
+      {"name": "SurrogateKey", "type": "varchar(-1)", "meaning": "Unique record key", "synonyms": ["unique key", "record id"]}
+    ],
+    "calculatedMetrics": [
+      {
+        "name": "PowerAvailable",
+        "category": "Power",
+        "description": "Total deployed power (KW) for datacenters with status Deployed or Shell.",
+        "aliases": ["available power", "Power available", "total available power"],
+        "calculation": "ROUND(SUM(TotalPower) / 1000.0, 2) AS [TotalDeployed(KW)] WHERE OperationalStatus in ('Deployed', 'Shell') and PropertyType = 'Colocation'"
+      },
+      {
+        "name": "TotalDeployed",
+        "category": "Power",
+        "description": "Total deployed power (KW) for datacenters with status Deployed or Shell.",
+        "aliases": ["Total Deployed", "total deployed", "deployed power", "total deployed power"],
+        "calculation": "ROUND(SUM(TotalPower) / 1000.0, 2) AS [TotalDeployed(KW)] WHERE OperationalStatus in ('Deployed', 'Shell') and PropertyType = 'Colocation'"
+      },
+      {
+        "name": "AvailableDeployed",
+        "category": "Power",
+        "description": "Available deployed power (KW). Uses TotalPower for Deployed sites.",
+        "aliases": ["Available Deployed", "available deployed", "available power deployed", "available deployed power"],
+        "calculation": "Sum of TotalPowerAvailable for all datacenters with OperationalStatus as Deployed and PropertyType as 'Colocation'"
+      },
+      {
+        "name": "UnderConstructionPower",
+        "category": "Power",
+        "description": "Power pipeline (KW)",
+        "aliases": ["UnderConstruction KW", "Power Under Construction", "pipeline power", "under construction power"],
+        "calculation": "Sum of TotalPower for all datacenters with OperationalStatus as Planned or Under Construction and PropertyType as 'Colocation'"
+      },
+      {
+        "name": "Land",
+        "category": "Land",
+        "description": "Land bank power (KW). Includes sites with OperationalStatus = Land.",
+        "aliases": ["Land", "land capacity", "land power", "land bank"],
+        "calculation": "Sum of TotalPower for all datacenters with OperationalStatus as Land and PropertyType as 'Colocation'"
+      },
+      {
+        "name": "LiveInventory",
+        "category": "Inventory",
+        "description": "Live inventory power (KW) for internal deployed sites.",
+        "aliases": ["Live Inventory", "live inventory", "active power", "live power"],
+        "calculation": "Sum of TotalPower for all datacenters with Internal = 'True' and OperationalStatus = 'Deployed' and PropertyType as 'Colocation'"
+      },
+      {
+        "name": "VacantInventory",
+        "category": "Inventory",
+        "description": "Vacant inventory power (KW) for internal deployed sites.",
+        "aliases": ["Vacant Inventory", "vacant inventory", "empty power", "vacant power"],
+        "calculation": "Sum of TotalPowerAvailable for all datacenters with Internal = 'True' and OperationalStatus = 'Deployed' and PropertyType as 'Colocation'"
+      },
+      {
+        "name": "LiveRaisedSpace",
+        "category": "Space",
+        "description": "Live raised space (SQFT) for internal deployed sites.",
+        "aliases": ["LiveRaisedSpace", "live raised space", "occupied raised space", "live space"],
+        "calculation": "Sum of TotalRaisedSQFT for all datacenters with Internal = 'True' and OperationalStatus = 'Deployed' and PropertyType as 'Colocation'"
+      },
+      {
+        "name": "VacantRaisedSpace",
+        "category": "Space",
+        "description": "Vacant raised space (SQFT) for internal deployed sites.",
+        "aliases": ["VacantRaisedSpace", "vacant raised space", "empty raised space", "vacant space"],
+        "calculation": "Sum of AvailableRaisedSQFT for all datacenters with Internal = 'True' and OperationalStatus = 'Deployed' and PropertyType as 'Colocation'"
+      },
+      {
+        "name": "TotalCurrentMarketPower",
+        "category": "Market",
+        "description": "Total Market power",
+        "aliases": [
+          "total current market  power",  
+          "total current market KW"
+        ],
+        "calculation": "WITH ExpansionPower AS (SELECT SUM(CASE WHEN LEFT(ExpansionDate, 4) = YEAR(CURRENT_DATE) THEN totalpower END) / 1000.0 AS Power WHERE PropertyType = 'Colocation' AND OperationalStatus IN ('Deployed', 'UnderConstruction', 'Announced', 'Planned', 'Shell', 'Land', 'Unknown')), DeployedPower AS (SELECT SUM(totalpower) / 1000.0 AS Power WHERE OperationalStatus = 'Deployed' AND PropertyType = 'Colocation') SELECT ExpansionPower.Power + DeployedPower.Power AS TotalCurrentMarketPower FROM ExpansionPower CROSS JOIN DeployedPower;"
+      },
+      {
+        "name": "CurrentMarketSharePower",
+        "category": "Market Share",
+        "description": "Market share by power (%) for specific providers, regions, and time periods.",
+        "aliases": [
+          "current market share power", 
+          "current market share power %"
+        ],
+        "calculation": "CurrentMarketSharePower=(TotalCurrentMarketPower where ProviderName=<provider_name> * 100)/TotalCurrentMarketPower"
+      },
+      {
+        "name": "TotalFutureMarketPower",
+        "category": "Total Market Power",
+        "description": "Total Future Market Power",
+        "aliases": [
+          "total future market  power", 
+          "total future 10 year market KW", 
+          "total future market KW"
+        ],
+        "calculation": "WITH ExpansionYearPower AS (SELECT SUM(CASE WHEN LEFT(ExpansionDate, 4) = YEAR(CURRENT_DATE) THEN totalpower END) / 1000.0 AS Power WHERE PropertyType = 'Colocation' AND OperationalStatus IN ('Deployed', 'UnderConstruction', 'Announced', 'Planned', 'Shell', 'Land', 'Unknown')), DeployedPower AS (SELECT SUM(totalpower) / 1000.0 AS Power WHERE OperationalStatus = 'Deployed' AND PropertyType = 'Colocation'), PipelineNoDatePower AS (SELECT SUM(totalpower) / 1000.0 AS Power WHERE PropertyType = 'Colocation' AND ExpansionDate IS NULL) SELECT ExpansionYearPower.Power + DeployedPower.Power + PipelineNoDatePower.Power AS TotalFutureMarketPower FROM ExpansionYearPower CROSS JOIN DeployedPower CROSS JOIN PipelineNoDatePower"
+      },
+      {
+        "name": "FutureMarketSharePower",
+        "category": "Market Share",
+        "description": "Market share by power (%) for specific providers, regions, and time periods.",
+        "aliases": [
+          "future market share power", 
+          "future market share power %"
+        ],
+        "calculation": "FutureMarketSharePower=(TotalFutureMarketPower for selected Provider * 100)/TotalFutureMarketPower"
+      },
+      {
+        "name": "TotalPowerUtilized",
+        "category": "Power",
+        "description": "Total utilized power (KW), including deployed power and power from expansions occurring in 2025, excluding self-build facilities.",
+        "aliases": [
+          "total power utilized",
+          "utilized power",
+          "total utilized power"
+        ],
+        "calculation": "SELECT (SUM(CASE WHEN ExpansionDate >= '2025-01-01' AND ExpansionDate < '2026-01-01' THEN TotalPowerUtilized ELSE 0 END) + SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalPowerUtilized ELSE 0 END)) / 1000.0 AS TotalPowerUtilizedKW FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType, 'NA') <> 'self-build';"
+      },
+      {
+        "name": "OccupiedPowerMarketShare",
+        "category": "Market Share",
+        "description": "Percentage of total power capacity that is currently utilized across the market.",
+        "aliases": [
+          "occupied market share",
+          "power occupancy rate",
+          "utilized power percentage",
+          "power occupied percentage",
+          "market power utilization"
+        ],
+        "calculation": "SELECT ROUND((SUM(TotalPowerUtilized) / NULLIF(SUM(TotalPower), 0)) * 100, 2) AS OccupiedMarketSharePercent FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType, 'NA') <> 'self-build';"
+      },
+      {
+        "name": "MarketSharePower",
+        "category": "Market Share",
+        "description": "Market share by Power (%) for specific providers, regions, and time periods.",
+        "aliases": [
+          "market share power", 
+          "power market share", 
+          "market share by power"
+        ],
+        "calculation": "WITH ProviderPower AS (SELECT SUM(TotalPower) AS Power FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE OperationalStatus='Deployed' AND PropertyType='Colocation' AND DataCenterProviderName=[selected_provider] AND ExpansionDate [time_condition]), TotalPower AS (SELECT SUM(TotalPower) AS Power FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE OperationalStatus='Deployed' AND PropertyType='Colocation' AND ExpansionDate [time_condition]) SELECT ROUND((ProviderPower.Power / NULLIF(TotalPower.Power, 0)) * 100, 2) AS [Market Share Power %] FROM ProviderPower CROSS JOIN TotalPower;"
+      },
+      {
+        "name": "TotalCurrentMarketSpace",
+        "category": "Market Share",
+        "description": "Total current market space, including deployed space and space from expansions occurring in 2025, excluding self-build facilities.",
+        "aliases": [
+          "total current market space",
+          "current total space",
+          "current market space",
+          "2025 market space"
+        ],
+        "calculation": "SELECT (SUM(CASE WHEN ExpansionDate >= '2025-01-01' AND ExpansionDate < '2026-01-01' THEN TotalRaisedSQFT ELSE 0 END) / 1000.0 + SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE 0 END) / 10.764) AS TotalCurrentMarketSpace FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType, 'NA') <> 'self-build';"
+      },
+      {
+        "name": "CurrentMarketShareSpace",
+        "category": "Market Share",
+        "description": "Market share of space (%) based on total current market space for selected providers, regions, and time periods.",
+        "aliases": [
+          "current market share space",
+          "current space market share",
+          "market share by current space"
+        ],
+        "calculation": "WITH ProviderSpace AS (SELECT (SUM(CASE WHEN ExpansionDate >= '2025-01-01' AND ExpansionDate < '2026-01-01' THEN TotalRaisedSQFT ELSE 0 END) / 1000.0 + SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE 0 END) / 10.764) AS Space FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE DataCenterProviderName = [selected_provider] AND COALESCE(PropertyType,'NA') <> 'self-build'), TotalSpace AS (SELECT (SUM(CASE WHEN ExpansionDate >= '2025-01-01' AND ExpansionDate < '2026-01-01' THEN TotalRaisedSQFT ELSE 0 END) / 1000.0 + SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE 0 END) / 10.764) AS Space FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType,'NA') <> 'self-build') SELECT ROUND((ProviderSpace.Space / NULLIF(TotalSpace.Space, 0)) * 100, 2) AS CurrentMarketShareSpacePercent FROM ProviderSpace CROSS JOIN TotalSpace;"
+      },
+      {
+        "name": "TotalFutureMarketSpace",
+        "category": "Market Share",
+        "description": "Total future market space over the next 10 years, including deployed space, dated expansions (2025–2035), and pipeline space without expansion dates.",
+        "aliases": [
+          "total future market space",
+          "10 year market space",
+          "future market space",
+          "pipeline market space"
+        ],
+        "calculation": "SELECT (SUM(CASE WHEN TRY_CAST(ExpansionDate AS date) >= '2025-01-01' AND TRY_CAST(ExpansionDate AS date) < '2036-01-01' THEN TotalRaisedSQFT ELSE 0 END) / 10.764 + SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE 0 END) / 10.764 + SUM(CASE WHEN ExpansionDate IS NULL AND OperationalStatus IN ('Planned','Land','Under Construction','Shell','Announced','unknown') AND DataCenterProviderName IS NOT NULL THEN TotalRaisedSQFT ELSE 0 END) / 10.764) AS TotalFutureMarketSpace FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType,'NA') <> 'self-build';"
+      },
+      {
+        "name": "FutureMarketShareSpace",
+        "category": "Market Share",
+        "description": "Future market share of space (%) over the next 10 years, including deployed, expansion, and pipeline space.",
+        "aliases": [
+          "future market share space",
+          "10 year market share space",
+          "pipeline space market share"
+        ],
+        "calculation": "WITH ProviderSpace AS (SELECT (SUM(CASE WHEN TRY_CAST(ExpansionDate AS date) >= '2025-01-01' AND TRY_CAST(ExpansionDate AS date) < '2036-01-01' THEN TotalRaisedSQFT ELSE 0 END) / 10.764 + SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE 0 END) / 10.764 + SUM(CASE WHEN ExpansionDate IS NULL AND OperationalStatus IN ('Planned','Land','Under Construction','Shell','Announced','unknown') AND DataCenterProviderName IS NOT NULL THEN TotalRaisedSQFT ELSE 0 END) / 10.764) AS Space FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE DataCenterProviderName = [selected_provider] AND COALESCE(PropertyType,'NA') <> 'self-build'), TotalSpace AS (SELECT (SUM(CASE WHEN TRY_CAST(ExpansionDate AS date) >= '2025-01-01' AND TRY_CAST(ExpansionDate AS date) < '2036-01-01' THEN TotalRaisedSQFT ELSE 0 END) / 10.764 + SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE 0 END) / 10.764 + SUM(CASE WHEN ExpansionDate IS NULL AND OperationalStatus IN ('Planned','Land','Under Construction','Shell','Announced','unknown') AND DataCenterProviderName IS NOT NULL THEN TotalRaisedSQFT ELSE 0 END) / 10.764) AS Space FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType,'NA') <> 'self-build') SELECT ROUND((ProviderSpace.Space / NULLIF(TotalSpace.Space, 0)) * 100, 2) AS FutureMarketShareSpacePercent FROM ProviderSpace CROSS JOIN TotalSpace;"
+      },
+      {
+        "name": "AvailableMarketSpace",
+        "category": "Market Share",
+        "description": "Total available market space based on available rentable space from deployed facilities.",
+        "aliases": [
+          "available market space",
+          "available space",
+          "free market space"
+        ],
+        "calculation": "SELECT SUM(CASE WHEN OperationalStatus = 'Deployed' THEN AvailableRentableSQFT ELSE 0 END) / 10.764 AS AvailableMarketSpace FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType,'NA') <> 'self-build';"
+      },
+      {
+        "name": "OccupiedSpaceMarketShare",
+        "category": "Market Share",
+        "description": "Percentage of total current market space that is occupied.",
+        "aliases": [
+          "occupied space market share",
+          "space occupancy rate",
+          "occupied market space percentage"
+        ],
+        "calculation": "WITH TotalSpace AS (SELECT (SUM(CASE WHEN ExpansionDate >= '2025-01-01' AND ExpansionDate < '2026-01-01' THEN TotalRaisedSQFT ELSE 0 END) / 1000.0 + SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE 0 END) / 10.764) AS Space FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType,'NA') <> 'self-build'), AvailableSpace AS (SELECT SUM(CASE WHEN OperationalStatus = 'Deployed' THEN AvailableRentableSQFT ELSE 0 END) / 10.764 AS Space FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE COALESCE(PropertyType,'NA') <> 'self-build') SELECT ROUND(((TotalSpace.Space - AvailableSpace.Space) / NULLIF(TotalSpace.Space, 0)) * 100, 2) AS OccupiedSpaceMarketSharePercent FROM TotalSpace CROSS JOIN AvailableSpace;"
+      },
+      {
+        "name": "MarketShareSpace",
+        "category": "Market Share",
+        "description": "Market share by space (%) for specific providers, regions, and time periods.",
+        "aliases": [
+          "market share space", 
+          "space market share", 
+          "market share by space"
+        ],
+        "calculation": "WITH ProviderSpace AS (SELECT SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE TotalRaisedSQFT END) AS Space FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE DataCenterProviderName = [selected_provider] AND OperationalStatus IN ('Deployed', 'UnderConstruction', 'Announced', 'Planned', 'Shell', 'Land', 'Unknown') AND PropertyType = 'Colocation' AND ExpansionDate [time_condition]), TotalSpace AS (SELECT SUM(CASE WHEN OperationalStatus = 'Deployed' THEN TotalRentableSQFT ELSE TotalRaisedSQFT END) AS Space FROM [3_PRP].[V_MID_DATACENTER_SUPPLY] WHERE OperationalStatus IN ('Deployed', 'UnderConstruction', 'Announced', 'Planned', 'Shell', 'Land', 'Unknown') AND PropertyType = 'Colocation' AND ExpansionDate [time_condition]) SELECT ROUND((ProviderSpace.Space / NULLIF(TotalSpace.Space, 0)) * 100, 2) AS [Market Share Space %] FROM ProviderSpace CROSS JOIN TotalSpace;"
+      }
+    ]
+  },
+  {
+    "table": "3_PRP.V_LP_SUPPLY_CAGR_FORECAST",
+    "description": "Historical, current, and forecasted data center power and raised floor space metrics by geography, provider, and operational status. Includes past values, current-year totals, multi-year forecasts, and CAGR calculations for power and space.",
+    "columns": [
+      {"name": "geoid", "type": "string", "meaning": "Unique geographic identifier for the market or location", "synonyms": ["geoid", "geo id", "location id", "market id"]},
+      {"name": "TotalPower_1YearAgo", "type": "numeric", "meaning": "Total deployed power capacity one year ago (KW)", "synonyms": ["power 1 year ago", "historical power", "past power"]},
+      {"name": "TotalSpace_1YearAgo", "type": "numeric", "meaning": "Total raised floor space one year ago (SFT)", "synonyms": ["space 1 year ago", "historical space"]},
+      {"name": "TotalPower_2YearAgo", "type": "numeric", "meaning": "Total deployed power capacity two years ago (KW)", "synonyms": ["power 2 years ago"]},
+      {"name": "TotalSpace_2YearAgo", "type": "numeric", "meaning": "Total raised floor space two years ago (SFT)", "synonyms": ["space 2 years ago"]},
+      {"name": "TotalPower_3YearAgo", "type": "numeric", "meaning": "Total deployed power capacity three years ago (KW)", "synonyms": ["power 3 years ago"]},
+      {"name": "TotalSpace_3YearAgo", "type": "numeric", "meaning": "Total raised floor space three years ago (SFT)", "synonyms": ["space 3 years ago"]},
+      {"name": "Country", "type": "string", "meaning": "Country where the data center market is located", "synonyms": ["country", "nation"]},
+      {"name": "Market", "type": "string", "meaning": "City or market name of the data center location", "synonyms": ["market", "city", "metro"]},
+      {"name": "STATE", "type": "string", "meaning": "State or province of the data center location (if applicable)", "synonyms": ["state", "province", "region state"]},
+      {"name": "TotalPower_ThisYear", "type": "numeric", "meaning": "Total power capacity for the current year (KW)", "synonyms": ["current power", "this year power"]},
+      {"name": "TotalSpace_ThisYear", "type": "numeric", "meaning": "Total raised floor space for the current year (SFT)", "synonyms": ["current space", "this year space"]},
+      {"name": "TotalPower_1YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity one year ahead (KW)", "synonyms": ["future power 1 year", "forecast power"]},
+      {"name": "TotalSpace_1YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space one year ahead (SFT)", "synonyms": ["future space 1 year", "forecast space"]},
+      {"name": "TotalPower_2YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity two years ahead (KW)", "synonyms": ["future power 2 years"]},
+      {"name": "TotalSpace_2YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space two years ahead (SFT)", "synonyms": ["future space 2 years"]},
+      {"name": "TotalPower_3YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity three years ahead (KW)", "synonyms": ["future power 3 years"]},
+      {"name": "TotalSpace_3YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space three years ahead (SFT)", "synonyms": ["future space 3 years"]},
+      {"name": "TotalPower_4YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity four years ahead (KW)", "synonyms": ["future power 4 years"]},
+      {"name": "TotalSpace_4YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space four years ahead (SFT)", "synonyms": ["future space 4 years"]},
+      {"name": "TotalPower_5YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity five years ahead (KW)", "synonyms": ["future power 5 years"]},
+      {"name": "TotalSpace_5YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space five years ahead (SFT)", "synonyms": ["future space 5 years"]},
+      {"name": "TotalPower_6YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity six years ahead (KW)", "synonyms": ["future power 6 years"]},
+      {"name": "TotalSpace_6YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space six years ahead (SFT)", "synonyms": ["future space 6 years"]},
+      {"name": "TotalPower_7YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity seven years ahead (KW)", "synonyms": ["future power 7 years"]},
+      {"name": "TotalSpace_7YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space seven years ahead (SFT)", "synonyms": ["future space 7 years"]},
+      {"name": "TotalPower_8YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity eight years ahead (KW)", "synonyms": ["future power 8 years"]},
+      {"name": "TotalSpace_8YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space eight years ahead (SFT)", "synonyms": ["future space 8 years"]},
+      {"name": "TotalPower_9YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity nine years ahead (KW)", "synonyms": ["future power 9 years"]},
+      {"name": "TotalSpace_9YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space nine years ahead (SFT)", "synonyms": ["future space 9 years"]},
+      {"name": "TotalPower_10YearAhead", "type": "numeric", "meaning": "Forecasted total power capacity ten years ahead (KW)", "synonyms": ["long term power forecast", "10 year power"]},
+      {"name": "TotalSpace_10YearAhead", "type": "numeric", "meaning": "Forecasted total raised floor space ten years ahead (SFT)", "synonyms": ["long term space forecast", "10 year space"]},
+      {"name": "GlobalRegion", "type": "string", "meaning": "High-level global region classification", "synonyms": ["global region", "macro region"]},
+      {"name": "BusinessRegion", "type": "string", "meaning": "Business-defined regional grouping", "synonyms": ["business region", "operating region"]},
+      {"name": "GlobalRegionID", "type": "numeric", "meaning": "Numeric identifier for the global region", "synonyms": ["global region id"]},
+      {"name": "BusinessRegionID", "type": "numeric", "meaning": "Numeric identifier for the business region", "synonyms": ["business region id"]},
+      {"name": "PropertyType", "type": "string", "meaning": "Type of data center property", "synonyms": ["property type", "facility type"]},
+      {"name": "DataCenterProviderName", "type": "string", "meaning": "Name of the data center provider or operator", "synonyms": ["provider", "operator", "data center provider"]},
+      {"name": "operationalstatus", "type": "string", "meaning": "Operational status of the data center capacity", "synonyms": ["operational status", "status", "deployment status"]},
+      {"name": "CAGR_TotalPower", "type": "numeric", "meaning": "Historical compound annual growth rate of total power", "synonyms": ["power cagr", "historical power growth"]},
+      {"name": "CAGR_TotalSpace", "type": "numeric", "meaning": "Historical compound annual growth rate of total raised floor space", "synonyms": ["space cagr", "historical space growth"]},
+      {"name": "Future_CAGR_TotalPower", "type": "numeric", "meaning": "Projected compound annual growth rate of total power", "synonyms": ["future power cagr", "forecast power growth"]},
+      {"name": "Future_CAGR_TotalSpace", "type": "numeric", "meaning": "Projected compound annual growth rate of total raised floor space", "synonyms": ["future space cagr", "forecast space growth"]},
+      {"name": "SurrogateKey", "type": "string", "meaning": "Composite surrogate key uniquely identifying a record", "synonyms": ["surrogate key", "composite key", "record id"]}
+    ]
+  },
+  {
+    "table": "3_PRP.V_MARKET_ACTIVITIES",
+    "description": "Market development activities tracking strategic projects, cable infrastructure, and provider details across business regions.",
+    "columns": [
+      {"name": "businessregion", "type": "varchar(700)", "meaning": "Business region classification", "synonyms": ["business region", "operational region"]},
+      {"name": "globalregion", "type": "varchar(700)", "meaning": "Global region classification", "synonyms": ["global region", "world region"]},
+      {"name": "GlobalRegionID", "type": "bigint", "meaning": "Global region identifier", "synonyms": ["global region id"]},
+      {"name": "BusinessRegionID", "type": "bigint", "meaning": "Business region identifier", "synonyms": ["business region id"]},
+      {"name": "subregion", "type": "bigint", "meaning": "Sub-region identifier", "synonyms": ["subregion id"]},
+      {"name": "businessterritory", "type": "bigint", "meaning": "Business territory identifier", "synonyms": ["business territory id"]},
+      {"name": "Country", "type": "varchar(1200)", "meaning": "Country name", "synonyms": ["country", "nation"]},
+      {"name": "STATE", "type": "varchar(1200)", "meaning": "State or province", "synonyms": ["state", "province"]},
+      {"name": "activity", "type": "varchar(8000)", "meaning": "Market activity description", "synonyms": ["activity description"]},
+      {"name": "building", "type": "varchar(1020)", "meaning": "Building information", "synonyms": ["building name"]},
+      {"name": "cablecapacity", "type": "bigint", "meaning": "Cable capacity metric", "synonyms": ["cable capacity"]},
+      {"name": "cablelength", "type": "bigint", "meaning": "Cable length measurement", "synonyms": ["cable length"]},
+      {"name": "contifyid", "type": "varchar(400)", "meaning": "Contify identifier", "synonyms": ["contify id"]},
+      {"name": "highstrategic", "type": "nvarchar(4000)", "meaning": "High strategic importance indicator", "synonyms": ["high strategic", "high impact"]},
+      {"name": "keyallfields", "type": "varchar(1600)", "meaning": "Composite key across all fields", "synonyms": ["composite key"]},
+      {"name": "market", "type": "varchar(1020)", "meaning": "Market location", "synonyms": ["market name"]},
+      {"name": "mediumstrategic", "type": "nvarchar(4000)", "meaning": "Medium strategic importance indicator", "synonyms": ["medium strategic", "medium impact"]},
+      {"name": "geoid", "type": "varchar(400)", "meaning": "Geographic identifier", "synonyms": ["geographic id"]},
+      {"name": "url", "type": "varchar(8000)", "meaning": "URL reference", "synonyms": ["web url"]},
+      {"name": "provider", "type": "varchar(1020)", "meaning": "Provider or vendor name", "synonyms": ["provider name"]},
+      {"name": "totalpower", "type": "decimal", "meaning": "Total power capacity", "synonyms": ["total power"]},
+      {"name": "totalspace", "type": "decimal", "meaning": "Total space capacity", "synonyms": ["total space"]}
+    ]
+  }
+]

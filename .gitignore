@@ -1,0 +1,11 @@
+# virtual environment
+.myenv/
+
+# secrets
+.env
+.env-backup
+
+# system files
+__pycache__/
+*.pyc
+.chainlit/transalations/
