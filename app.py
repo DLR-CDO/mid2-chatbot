@@ -8,6 +8,22 @@ import pandas as pd
 import base64
 import httpx
 from datetime import datetime
+import logging
+
+# ============================================================
+# CONFIGURE BASIC LOGGING
+# ============================================================
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('chainlit_app.log')
+    ]
+)
+
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # CHAINLIT APPLICATION
@@ -56,6 +72,7 @@ async def set_starters():
 @cl.on_chat_start
 async def on_chat_start():
     """Initialize chatbot when chat starts."""
+    logger.info("Chat started")
     chatbot = NL2SQLChatbot()
     print('user instance :',chatbot)
     cl.user_session.set("chatbot", chatbot)
@@ -63,6 +80,7 @@ async def on_chat_start():
     # Initialize chat history
     chat_history = ChatHistory()
     cl.user_session.set("chat_history", chat_history)
+    logger.debug("Chatbot and chat history initialized")
 
 
 async def send_suggestion_cards(suggestions: List[str]):
@@ -89,14 +107,18 @@ async def send_suggestion_cards(suggestions: List[str]):
 @cl.on_message
 async def on_message(message: cl.Message):
     """Handle incoming messages."""
+    logger.info(f"Received message: {message.content[:100]}...")
+    
     chatbot = cl.user_session.get("chatbot")
     chat_history = cl.user_session.get("chat_history")
 
     if chatbot is None:
+        logger.warning("Chatbot not found in session, creating new one")
         chatbot = NL2SQLChatbot()
         cl.user_session.set("chatbot", chatbot)
 
     if chat_history is None:
+        logger.warning("Chat history not found in session, creating new one")
         chat_history = ChatHistory()
         cl.user_session.set("chat_history", chat_history)
     
@@ -106,11 +128,13 @@ async def on_message(message: cl.Message):
     # Create and send a loading indicator
     msg = cl.Message(content="⏳ Processing your query...")
     await msg.send()
+    logger.debug("Started processing query")
     
     # Process the query
     try:
         result = await chatbot.process_query(message.content, chat_history)
         cl.user_session.set("last_results", result.get("results"))
+        logger.info(f"Query processed. Found {len(result.get('results', []))} results")
 
         # Prepare response
         response_parts = []
@@ -120,25 +144,32 @@ async def on_message(message: cl.Message):
             filter_display = chatbot.format_filter_info(result["filter_info"])
             if filter_display:
                 response_parts.append(f"**🔍 FILTER ANALYSIS**\n{filter_display}")
+                logger.debug(f"Filter info: {filter_display}")
 
         # Step 1: Table selection results
         response_parts.append(f"**📊 Relevant Tables:**\n")
         if result["relevant_tables"]:
             for table in result["relevant_tables"]:
                 response_parts.append(f"- `{table}`")
+            logger.debug(f"Relevant tables: {result['relevant_tables']}")
         else:
             response_parts.append("No relevant tables found.")
+            logger.warning("No relevant tables found for query")
         
         # Step 2: SQL query
         if result["sql"]:
             response_parts.append(f"\n**🔧 Generated SQL:**\n```sql\n{result['sql']}\n```")
+            logger.debug(f"Generated SQL: {result['sql'][:200]}...")
         
         # Display results
         if result.get("results"):
             if len(result["results"]) > 0 and "error" in result["results"][0]:
-                response_parts.append(f"\n**❌ Error:**\n{result['results'][0]['error']}")
+                error_msg = result['results'][0]['error']
+                response_parts.append(f"\n**❌ Error:**\n{error_msg}")
+                logger.error(f"SQL execution error: {error_msg}")
             else:
                 response_parts.append(f"\n**📈 Results ({len(result['results'])} rows):**")
+                logger.info(f"Query returned {len(result['results'])} rows")
                 
                 # Display results in a table format
                 if result["results"]:
@@ -170,50 +201,60 @@ async def on_message(message: cl.Message):
         await msg.update()
         msg.content = full_response
         await msg.update()
+        logger.debug("Response sent to user")
         
-        # NEW ORDER: Show suggestions FIRST (before visualization)
+        # Show suggestions
         if result.get("suggestions") and len(result["suggestions"]) > 0:
             try:
+                logger.debug(f"Generated suggestions: {result['suggestions']}")
                 await send_suggestion_cards(result["suggestions"])
             except Exception as e:
-                print(f"Error sending suggestion cards: {e}")
+                logger.error(f"Error sending suggestion cards: {e}", exc_info=True)
                 # Fallback: display as plain text
                 fallback_msg = "**💡 Suggested questions:**\n\n"
                 for i, suggestion in enumerate(result["suggestions"][:3], 1):
                     fallback_msg += f"{i}. {suggestion}\n"
                 await cl.Message(content=fallback_msg).send()
 
-        # THEN show visualization option (after suggestions)
+        # Show visualization option (after suggestions)
         if result.get("results") and len(result["results"]) > 0:
-            await cl.Message(
-                content="📊 Want to visualize this data?",
-                actions=[
-                    cl.Action(
-                        name="visualize",
-                        payload={},
-                        label="Visualize"
-                    )
-                ]
-            ).send()
+            if len(result["results"]) > 0 and "error" not in result["results"][0]:
+                logger.debug("Showing visualization option")
+                await cl.Message(
+                    content="📊 Want to visualize this data?",
+                    actions=[
+                        cl.Action(
+                            name="visualize",
+                            payload={},
+                            label="Visualize"
+                        )
+                    ]
+                ).send()
         
     except Exception as e:
         error_msg = f"An error occurred: {str(e)}"
+        logger.error(f"Error processing message: {e}", exc_info=True)
         chat_history.add_assistant_message(error_msg)
         msg.content = error_msg
         await msg.update()
 
+# Replace the entire on_visualize function in app.py with this:
 
 @cl.action_callback("visualize")
 async def on_visualize(action: cl.Action):
+    """Handle visualization request with Plotly."""
+    logger.info("Visualization action triggered")
+    
     chatbot = cl.user_session.get("chatbot")
     results = cl.user_session.get("last_results")
     chat_history = cl.user_session.get("chat_history")
     
     if not results:
+        logger.warning("No results available for visualization")
         await cl.Message("No data available to visualize.").send()
         return
     
-    # Get the last user query from chat history
+    # Get the last user query
     last_user_message = None
     for msg in reversed(chat_history.messages):
         if msg.role == "user":
@@ -223,106 +264,189 @@ async def on_visualize(action: cl.Action):
     if not last_user_message:
         last_user_message = "Visualize this data"
     
-    # Step 1: Prepare chart data
-    chart_data = await chatbot.prepare_chart_data(results, last_user_message)
-    
-    if "error" in chart_data:
-        await cl.Message(f"⚠️ {chart_data['error']}").send()
-        return
+    logger.info(f"Generating Plotly visualization for: {last_user_message[:50]}...")
     
     # Show processing message
-    msg = cl.Message(content="🖼️ Generating visualization...")
+    msg = cl.Message(content="📊 Generating interactive visualization...")
     await msg.send()
     
-    # Step 2: Build image prompt from chart_spec (INLINE)
-    chart_spec = chart_data["chart_spec"]
-    columns = chart_data["columns"]
-
-    # Minimal safety check
-    if (
-        chart_spec.get("x_axis") not in columns or
-        chart_spec.get("y_axis") not in columns
-    ):
+    # Generate chart data with Plotly figure
+    chart_data = await chatbot.prepare_chart_data(results, last_user_message)
+    
+    # Handle error
+    if "error" in chart_data:
+        error_msg = chart_data["error"]
+        logger.warning(f"Visualization failed: {error_msg}")
+        
         await msg.update()
-        msg.content = "⚠️ Cannot visualize this data safely."
-        await msg.update()
-        return
-
-    image_prompt = f"""
-    Create a {chart_spec['chart_type']} chart.
-
-    Title: {chart_spec['title']}
-    X-axis: {chart_spec['x_axis']}
-    Y-axis: {chart_spec['y_axis']}
-
-    {"Series: " + ", ".join(chart_spec['series']) if chart_spec.get("series") else ""}
-
-    Design:
-    - Theme: {chart_spec['design']['theme']}
-    - Palette: {chart_spec['design']['palette']}
-    - Legend: {chart_spec['design']['show_legend']}
-
-    Rules:
-    - Use ONLY the specified axes and series
-    - Do NOT invent categories or values
-    - Clean professional dashboard style
-    """
-
-    image_result = await chatbot.generate_chart_image(image_prompt)
-
-    if "error" in image_result:
-        await msg.update()
-        msg.content = f"⚠️ Visualization failed: {image_result['error']}"
+        msg.content = f"**⚠️ Visualization Error**\n\n{error_msg}"
         await msg.update()
         return
     
-    # Step 3: Save and display image
-    try:
-        # Decode and save image
-        public_dir = "public"
-        os.makedirs(public_dir, exist_ok=True)
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        img_filename = f"chart_{timestamp}.png"
-        img_path = os.path.join(public_dir, img_filename)
-        
-        image_bytes = base64.b64decode(image_result["base64_image"])
-        with open(img_path, "wb") as f:
-            f.write(image_bytes)
-        
-        # Display image in Chainlit
-        image = cl.Image(
-            name=img_filename,
-            path=img_path,
-            display="inline",
-            size="large"
-        )
-        
+    # Check for Plotly type
+    if chart_data.get("type") == "plotly":
+        try:
+            # Create Plotly element
+            plotly_element = cl.Plotly(
+                name="chart",
+                figure=chart_data["figure"],
+                display="inline"
+            )
+            
+            await msg.update()
+            msg.content = "📊 **Chart Generated**"
+            await msg.update()
+            
+            # Send the Plotly chart
+            await cl.Message(
+                content="",
+                elements=[plotly_element]
+            ).send()
+            
+            # Send chart info
+            info_parts = [
+                f"**Chart Details**",
+                f"• **Data Points:** {chart_data.get('rows', 0):,} rows",
+                f"• **Columns:** {', '.join(chart_data.get('columns', []))}"
+            ]
+            
+            # Add interaction tips
+            info_parts.extend([
+                "",
+                "**💡 Interaction Tips:**",
+                "• **Hover** over points to see details",
+                "• **Zoom** by dragging a rectangle",
+                "• **Pan** by dragging the chart",
+                "• **Reset** by double-clicking",
+                "• **Download** as PNG via the camera icon"
+            ])
+            
+            await cl.Message(content="\n".join(info_parts)).send()
+            
+        except Exception as e:
+            logger.error(f"Error displaying Plotly chart: {e}", exc_info=True)
+            await msg.update()
+            msg.content = f"Failed to display chart: {str(e)}"
+            await msg.update()
+    else:
         await msg.update()
-        msg.content = "📊 **Visualization Generated**"
-        await msg.update()
-        
-        # Send image
-        await cl.Message(
-            content="",
-            elements=[image]
-        ).send()
-        
-        # Send chart info
-        await cl.Message(
-            f"**Chart Type:** {chart_data['chart_spec']['chart_type']}\n"
-            f"**Data Points:** {chart_data['rows']} rows × {len(chart_data['columns'])} columns"
-        ).send()
-        
-    except Exception as e:
-        await msg.update()
-        msg.content = f"⚠️ Failed to save/display image: {str(e)}"
+        msg.content = "Unknown chart type returned."
         await msg.update()
 
-@cl.on_chat_resume
-async def on_chat_resume(thread):
-    """Handle chat resume."""
-    chat_history = ChatHistory()
-    cl.user_session.set("chat_history", chat_history)
-
+# @cl.action_callback("visualize")
+# async def on_visualize(action: cl.Action):
+#     """Handle visualization request with HTML chart."""
+#     logger.info("Visualization action triggered")
+    
+#     chatbot = cl.user_session.get("chatbot")
+#     results = cl.user_session.get("last_results")
+#     chat_history = cl.user_session.get("chat_history")
+    
+#     if not results:
+#         logger.warning("No results available for visualization")
+#         await cl.Message("No data available to visualize.").send()
+#         return
+    
+#     # Get the last user query
+#     last_user_message = None
+#     for msg in reversed(chat_history.messages):
+#         if msg.role == "user":
+#             last_user_message = msg.content
+#             break
+    
+#     if not last_user_message:
+#         last_user_message = "Visualize this data"
+    
+#     logger.info(f"Generating HTML visualization for: {last_user_message[:50]}...")
+    
+#     # Show processing message
+#     msg = cl.Message(content="📊 Generating interactive visualization...")
+#     await msg.send()
+    
+#     # Generate chart and save as HTML
+#     chart_data = await chatbot.prepare_chart_data(results, last_user_message)
+    
+#     # Handle error
+#     if "error" in chart_data:
+#         error_msg = chart_data["error"]
+#         logger.warning(f"Visualization failed: {error_msg}")
+        
+#         await msg.update()
+#         msg.content = f"**⚠️ Visualization Error**\n\n{error_msg}"
+#         await msg.update()
+#         return
+    
+#     # Check for HTML type
+#     if chart_data.get("type") == "html":
+#         html_path = chart_data.get("local_path")
+#         if html_path and os.path.exists(html_path):
+#             # Read the HTML content
+#             with open(html_path, "r", encoding="utf-8") as f:
+#                 html_content = f.read()
+            
+#             await msg.update()
+#             msg.content = "📊 **Interactive Visualization**"
+#             await msg.update()
+            
+#             # Method 1: Direct HTML embedding using cl.Html
+#             try:
+#                 # Create an HTML element with the chart
+#                 html_element = cl.Html(
+#                     content=html_content,
+#                     name="chart",
+#                     display="inline"
+#                 )
+                
+#                 # Send the HTML element
+#                 await cl.Message(
+#                     content="",
+#                     elements=[html_element]
+#                 ).send()
+                
+#             except Exception as e:
+#                 logger.error(f"Error with cl.Html: {e}")
+#                 # Fallback: Use iframe
+#                 try:
+#                     # Try using Element with type="html"
+#                     html_element = cl.Element(
+#                         name="chart_iframe",
+#                         type="html",
+#                         content=html_content,
+#                         display="inline"
+#                     )
+                    
+#                     await cl.Message(
+#                         content="",
+#                         elements=[html_element]
+#                     ).send()
+                    
+#                 except Exception as e2:
+#                     logger.error(f"Error with cl.Element: {e2}")
+#                     # Last resort: provide download link
+#                     html_relative_path = chart_data.get("html_path", "")
+#                     chart_url = f"/public/{html_relative_path}"
+                    
+#                     await cl.Message(
+#                         content=f"📊 **Chart Generated**\n\nYou can view the interactive chart here: [{chart_url}]({chart_url})"
+#                     ).send()
+            
+#             # Send chart info
+#             info_parts = [
+#                 f"**Chart Type:** Interactive HTML Chart",
+#                 f"**Data Points:** {chart_data.get('rows', 0):,} rows",
+#                 f"**Columns:** {', '.join(chart_data.get('columns', [])[:5])}"
+#             ]
+            
+#             if len(chart_data.get('columns', [])) > 5:
+#                 info_parts[-1] += f" ... (+{len(chart_data['columns']) - 5} more)"
+            
+#             await cl.Message(content="\n".join(info_parts)).send()
+#         else:
+#             await msg.update()
+#             msg.content = "Chart HTML file not found."
+#             await msg.update()
+#     else:
+#         await msg.update()
+#         msg.content = "Unknown chart type returned."
+#         await msg.update()
  

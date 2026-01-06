@@ -8,4 +8,7 @@
 # system files
 __pycache__/
 *.pyc
-.chainlit/transalations/
+.chainlit/translations/
+.files/
+
+chainlit.md

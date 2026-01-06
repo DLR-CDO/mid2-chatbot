@@ -17,6 +17,9 @@ import base64
 import httpx
 from openai import AzureOpenAI
 from datetime import datetime
+import plotly.graph_objects as go
+import plotly.express as px
+
 
 # Semantic Kernel imports
 import semantic_kernel as sk
@@ -27,6 +30,18 @@ from semantic_kernel.kernel import Kernel
 from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.contents.chat_message_content import ChatMessageContent
 from semantic_kernel.connectors.ai.prompt_execution_settings import PromptExecutionSettings
+
+import logging
+import uuid
+from decimal import Decimal
+from pathlib import Path
+import altair as alt
+from typing import List, Dict, Any, Optional
+import json
+
+# Configure logging at module level
+logger = logging.getLogger(__name__)
+
 
 # ------------------------------------------------------------
 # Load environment variables
@@ -67,6 +82,19 @@ metadata = load_metadata()
 
 class NL2SQLChatbot:
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
+        
+        # Check if logging is configured, if not, configure basic config
+        if not logging.getLogger().handlers:
+            logging.basicConfig(
+                level=logging.INFO,
+                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                handlers=[
+                    logging.StreamHandler(),
+                    logging.FileHandler('nl2sql.log')
+                ]
+            )
+        
         self.kernel = sk.Kernel()
         
         # Initialize Azure OpenAI service
@@ -82,7 +110,25 @@ class NL2SQLChatbot:
         
         # Initialize plugins
         self._setup_plugins()
-
+        
+        self.logger.info("NL2SQLChatbot initialized successfully")
+        #################################################################################
+        # self.kernel = sk.Kernel()
+        
+        # # Initialize Azure OpenAI service
+        # self.chat_service = AzureChatCompletion(
+        #     endpoint=os.getenv("AZURE_OPENAI_BASE_URL"),
+        #     api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+        #     deployment_name=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
+        #     api_version=os.getenv("AZURE_OPENAI_API_VERSION")
+        # )
+        
+        # self.kernel.add_service(self.chat_service)
+        # self.chat_service = self.kernel.get_service()
+        
+        # # Initialize plugins
+        # self._setup_plugins()
+        #################################################################################
         # print("\n=== TESTING REGISTERED FUNCTIONS ===")
         # try:
         #     funcs = self.kernel.get_plugin("nl2sql")
@@ -664,114 +710,269 @@ class NL2SQLChatbot:
             "filter_info": filter_info
         }
     
-    # In nl2sql.py, replace render_chart method with:
-    async def prepare_chart_data(
-        self,
-        results: List[Dict[str, Any]],
-        user_query: str
-    ) -> Dict[str, Any]:
 
-        if not results or len(results) < 2:
-            return {"error": "Not enough data to visualize."}
-
-        df = pd.DataFrame(results)
-        columns = df.columns.tolist()
-
-        # Build strict data summary
-        summary_lines = []
-        for col in columns:
-            example = df[col].iloc[0]
-            dtype = str(df[col].dtype)
-            summary_lines.append(f"{col} ({dtype}) → example: {example}")
-
-        data_summary = "\n".join(summary_lines)
-
-        system_prompt = load_prompt("prompts/visualGeneration.txt")
-
-        prompt_filled = system_prompt \
-            .replace("{{USER_QUERY}}", user_query) \
-            .replace("{{COLUMNS}}", ", ".join(columns)) \
-            .replace("{{DATA_SUMMARY}}", data_summary)
-
-        # Call LLM (chat model, NOT image model)
-        execution_settings = PromptExecutionSettings(
-            temperature=0.0,
-            max_tokens=500
-        )
-
-        chat_history = ChatHistory()
-        chat_history.add_system_message(prompt_filled)
-
-        result = await self.chat_service.get_chat_message_contents(
-            chat_history=chat_history,
-            settings=execution_settings
-        )
-
+    # Replace the entire prepare_chart_data method in nl2sql.py with this:
+    async def prepare_chart_data(self, results: List[Dict[str, Any]], user_query: str) -> Dict[str, Any]:
+        """Prepare chart data and generate Plotly figure."""
         try:
-            chart_spec = json.loads(result[0].content)
-        except Exception:
-            return {"error": "Invalid visualization spec generated."}
+            # Convert Decimals to float
+            def convert_decimals(obj):
+                if isinstance(obj, Decimal):
+                    return float(obj)
+                elif isinstance(obj, dict):
+                    return {k: convert_decimals(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [convert_decimals(item) for item in obj]
+                else:
+                    return obj
 
-        if "error" in chart_spec:
-            return chart_spec
+            processed_results = convert_decimals(results)
+            df = pd.DataFrame(processed_results)
 
-        return {
-            "chart_spec": chart_spec,
-            "rows": len(df),
-            "columns": columns
-        }
+            if df.empty:
+                return {"error": "No data available for visualization"}
 
+            # Convert numeric-like strings
+            for col in df.columns:
+                try:
+                    df[col] = pd.to_numeric(df[col])
+                except Exception:
+                    pass
 
-    async def generate_chart_image(self, image_prompt: str) -> Dict[str, Any]:
-        """Generate chart image using Azure OpenAI Image API."""
-        
-        try:
-            # 5️⃣ Azure Image API config
-            image_endpoint = os.getenv(
-                "AZURE_IMAGE_ENDPOINT",
-                "https://sfdevopenaidel.openai.azure.com"
-            ).rstrip("/")
-
-            image_api_key = os.getenv("AZURE_IMAGE_API_KEY") or os.getenv("AZURE_API_KEY")
-            image_api_version = os.getenv("AZURE_IMAGE_API_VERSION", "2024-02-01")
-            image_deployment = os.getenv("AZURE_IMAGE_MODEL", "gpt-image-1-mini")
-
-            if not image_api_key:
-                return {"error": "AZURE_IMAGE_API_KEY not set."}
-
-            image_url = (
-                f"{image_endpoint}/openai/deployments/"
-                f"{image_deployment}/images/generations"
-                f"?api-version={image_api_version}"
-            )
-
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {image_api_key}",
-            }
-
-            payload = {
-                "prompt": image_prompt,
-                "size": "1024x768",
-                "quality": "medium",
-                "background": "auto",
-                "output_format": "png",
-                "n": 1
-            }
-
-            # 6️⃣ Call image generation
-            async with httpx.AsyncClient(timeout=60) as client:
-                response = await client.post(image_url, headers=headers, json=payload)
-
-            response.raise_for_status()
-            result = response.json()
-
-            base64_image = result["data"][0]["b64_json"]
-            if not base64_image:
-                return {"error": "No image returned by the model."}
-
-            return {"base64_image": base64_image, "success": True}
+            num_columns = len(df.columns)
+            num_rows = len(df)
             
+            if num_columns == 0:
+                return {"error": "No columns in data to visualize"}
+            
+            # Clean up column names for display
+            df.columns = [str(col).replace('_', ' ').title() for col in df.columns]
+            
+            # Create appropriate chart based on data shape
+            if num_columns == 1:
+                col = df.columns[0]
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    # Histogram for single numeric column
+                    fig = px.histogram(
+                        df, 
+                        x=col,
+                        title=f"Distribution of {col}",
+                        labels={col: col},
+                        nbins=min(30, len(df[col].unique()))
+                    )
+                    fig.update_layout(
+                        xaxis_title=col,
+                        yaxis_title="Count",
+                        showlegend=False
+                    )
+                else:
+                    # Bar chart for single categorical column
+                    value_counts = df[col].value_counts().reset_index()
+                    value_counts.columns = [col, 'Count']
+                    fig = px.bar(
+                        value_counts,
+                        x=col,
+                        y='Count',
+                        title=f"Value Counts for {col}",
+                        labels={col: col, 'Count': 'Count'}
+                    )
+                    fig.update_layout(xaxis_tickangle=-45)
+
+            elif num_columns == 2:
+                x_col, y_col = df.columns[0], df.columns[1]
+                
+                if pd.api.types.is_numeric_dtype(df[y_col]):
+                    if pd.api.types.is_numeric_dtype(df[x_col]):
+                        # Scatter plot for two numeric columns
+                        fig = px.scatter(
+                            df,
+                            x=x_col,
+                            y=y_col,
+                            title=f"{y_col} vs {x_col}",
+                            labels={x_col: x_col, y_col: y_col}
+                        )
+                    else:
+                        # Bar chart for categorical x, numeric y
+                        fig = px.bar(
+                            df,
+                            x=x_col,
+                            y=y_col,
+                            title=f"{y_col} by {x_col}",
+                            labels={x_col: x_col, y_col: y_col}
+                        )
+                        fig.update_layout(xaxis_tickangle=-45)
+                else:
+                    # Bar chart for categorical y, numeric x
+                    fig = px.bar(
+                        df,
+                        x=y_col,
+                        y=x_col,
+                        title=f"{x_col} by {y_col}",
+                        labels={x_col: x_col, y_col: y_col}
+                    )
+                    fig.update_layout(xaxis_tickangle=-45)
+
+            else:  # 3+ columns
+                # Use first column for x, second for y, third for color if available
+                x_col, y_col = df.columns[0], df.columns[1]
+                
+                if len(df.columns) >= 3 and pd.api.types.is_numeric_dtype(df[df.columns[2]]):
+                    # Scatter plot with color coding
+                    color_col = df.columns[2]
+                    fig = px.scatter(
+                        df,
+                        x=x_col,
+                        y=y_col,
+                        color=color_col,
+                        title=f"{y_col} vs {x_col} (colored by {color_col})",
+                        labels={x_col: x_col, y_col: y_col, color_col: color_col}
+                    )
+                else:
+                    # Simple scatter plot
+                    fig = px.scatter(
+                        df,
+                        x=x_col,
+                        y=y_col,
+                        title=f"{y_col} vs {x_col}",
+                        labels={x_col: x_col, y_col: y_col}
+                    )
+
+            # Update layout for better appearance
+            fig.update_layout(
+                title=dict(
+                    text=user_query[:80] + ('...' if len(user_query) > 80 else ''),
+                    font=dict(size=16)
+                ),
+                height=500,
+                margin=dict(l=50, r=50, t=80, b=50),
+                hovermode='closest'
+            )
+            
+            # Convert figure to dictionary for serialization
+            #fig_dict = fig.to_dict()
+            
+            return {
+                "type": "plotly",
+                "figure": fig,
+                "rows": num_rows,
+                "columns": list(df.columns)
+            }
+
         except Exception as e:
-            print(f"❌ Visualization error: {e}")
-            return {"error": str(e)}
+            import traceback
+            traceback.print_exc()
+            return {"error": f"Failed to generate chart: {str(e)}"}
+        
+    #################################################################################
+    # # In nl2sql.py, replace render_chart method with:
+    # async def prepare_chart_data(
+    #     self,
+    #     results: List[Dict[str, Any]],
+    #     user_query: str
+    # ) -> Dict[str, Any]:
+
+    #     if not results or len(results) < 2:
+    #         return {"error": "Not enough data to visualize."}
+
+    #     df = pd.DataFrame(results)
+    #     columns = df.columns.tolist()
+
+    #     # Build strict data summary
+    #     summary_lines = []
+    #     for col in columns:
+    #         example = df[col].iloc[0]
+    #         dtype = str(df[col].dtype)
+    #         summary_lines.append(f"{col} ({dtype}) → example: {example}")
+
+    #     data_summary = "\n".join(summary_lines)
+
+    #     system_prompt = load_prompt("prompts/visualGeneration.txt")
+
+    #     prompt_filled = system_prompt \
+    #         .replace("{{USER_QUERY}}", user_query) \
+    #         .replace("{{COLUMNS}}", ", ".join(columns)) \
+    #         .replace("{{DATA_SUMMARY}}", data_summary)
+
+    #     # Call LLM (chat model, NOT image model)
+    #     execution_settings = PromptExecutionSettings(
+    #         temperature=0.0,
+    #         max_tokens=500
+    #     )
+
+    #     chat_history = ChatHistory()
+    #     chat_history.add_system_message(prompt_filled)
+
+    #     result = await self.chat_service.get_chat_message_contents(
+    #         chat_history=chat_history,
+    #         settings=execution_settings
+    #     )
+
+    #     try:
+    #         chart_spec = json.loads(result[0].content)
+    #     except Exception:
+    #         return {"error": "Invalid visualization spec generated."}
+
+    #     if "error" in chart_spec:
+    #         return chart_spec
+
+    #     return {
+    #         "chart_spec": chart_spec,
+    #         "rows": len(df),
+    #         "columns": columns
+    #     }
+
+
+    # async def generate_chart_image(self, image_prompt: str) -> Dict[str, Any]:
+    #     """Generate chart image using Azure OpenAI Image API."""
+        
+    #     try:
+    #         # 5️⃣ Azure Image API config
+    #         image_endpoint = os.getenv(
+    #             "AZURE_IMAGE_ENDPOINT",
+    #             "https://sfdevopenaidel.openai.azure.com"
+    #         ).rstrip("/")
+
+    #         image_api_key = os.getenv("AZURE_IMAGE_API_KEY") or os.getenv("AZURE_API_KEY")
+    #         image_api_version = os.getenv("AZURE_IMAGE_API_VERSION", "2024-02-01")
+    #         image_deployment = os.getenv("AZURE_IMAGE_MODEL", "gpt-image-1-mini")
+
+    #         if not image_api_key:
+    #             return {"error": "AZURE_IMAGE_API_KEY not set."}
+
+    #         image_url = (
+    #             f"{image_endpoint}/openai/deployments/"
+    #             f"{image_deployment}/images/generations"
+    #             f"?api-version={image_api_version}"
+    #         )
+
+    #         headers = {
+    #             "Content-Type": "application/json",
+    #             "Authorization": f"Bearer {image_api_key}",
+    #         }
+
+    #         payload = {
+    #             "prompt": image_prompt,
+    #             "size": "1024x768",
+    #             "quality": "medium",
+    #             "background": "auto",
+    #             "output_format": "png",
+    #             "n": 1
+    #         }
+
+    #         # 6️⃣ Call image generation
+    #         async with httpx.AsyncClient(timeout=60) as client:
+    #             response = await client.post(image_url, headers=headers, json=payload)
+
+    #         response.raise_for_status()
+    #         result = response.json()
+
+    #         base64_image = result["data"][0]["b64_json"]
+    #         if not base64_image:
+    #             return {"error": "No image returned by the model."}
+
+    #         return {"base64_image": base64_image, "success": True}
+            
+    #     except Exception as e:
+    #         print(f"❌ Visualization error: {e}")
+    #         return {"error": str(e)}
+    #################################################################################
